@@ -72,9 +72,10 @@ void BoundaryConditions::write_boundary_conditions(params_t a_params)
     pout() << "The boundary params chosen are:  " << endl;
     pout() << "---------------------------------" << endl;
 
-    std::map<int, std::string> bc_names = {
-        {STATIC_BC, "Static"},         {SOMMERFELD_BC, "Sommerfeld"},
-        {REFLECTIVE_BC, "Reflective"}, {EXTRAPOLATING_BC, "Extrapolating"}};
+    std::map<int, std::string> bc_names = {{STATIC_BC, "Static"},
+                                           {SOMMERFELD_BC, "Sommerfeld"},
+                                           {REFLECTIVE_BC, "Reflective"},
+                                           {EXTRAPOLATING_BC, "Extrapolating"}};
     FOR1(idir)
     {
         if (!a_params.is_periodic[idir])
@@ -274,45 +275,44 @@ void BoundaryConditions::fill_extrapolating_cell(FArrayBox &rhs_box,
     for (int icomp = comps.begin(); icomp < comps.end(); icomp++)
     {
         // current radius
-        double radius = Coordinates<double>::get_radius(iv, m_dx);
+        double radius = Coordinates<double>::get_radius(
+            iv, m_dx, {m_center[0], m_center[1], m_center[2]});
+
         // vector of 2 nearest values and radii within the grid
-        std::array<double, 2> a;
-        std::array<double, 2> r_a;
+        std::array<double, 2> value_at_point;
+        std::array<double, 2> r_at_point;
         // how many units are we from domain boundary?
-        int n = 0;
+        int units_from_edge = 0;
         if (a_side == Side::Hi)
         {
             // how many units are we from domain boundary?
-            n = iv[dir] - m_domain_box.bigEnd(dir);
-            // vector of 3 nearest values within the grid
+            units_from_edge = iv[dir] - m_domain_box.bigEnd(dir);
+            // vector of 2 nearest values and radii within the grid
             for (int i = 0; i < 2; i++)
             {
                 IntVect iv_tmp = iv;
-                iv_tmp[dir] += -n - i;
-                a[i] = rhs_box(iv_tmp, icomp);
-                r_a[i] = Coordinates<double>::get_radius(iv_tmp, m_dx);
+                iv_tmp[dir] += -units_from_edge - i;
+                value_at_point[i] = rhs_box(iv_tmp, icomp);
+                r_at_point[i] = Coordinates<double>::get_radius(
+                    iv_tmp, m_dx, {m_center[0], m_center[1], m_center[2]});
             }
         }
         else // Lo side
         {
             // how many units are we from domain boundary?
-            n = -iv[dir] + m_domain_box.smallEnd(dir);
+            units_from_edge = -iv[dir] + m_domain_box.smallEnd(dir);
             // vector of 2 nearest values within the grid
             for (int i = 0; i < 2; i++)
             {
                 IntVect iv_tmp = iv;
-                iv_tmp[dir] += n + i;
-                a[i] = rhs_box(iv_tmp, icomp);
-                r_a[i] = Coordinates<double>::get_radius(iv_tmp, m_dx);
+                iv_tmp[dir] += units_from_edge + i;
+                value_at_point[i] = rhs_box(iv_tmp, icomp);
+                r_at_point[i] = Coordinates<double>::get_radius(
+                    iv_tmp, m_dx, {m_center[0], m_center[1], m_center[2]});
             }
         }
 
-        // extrapolate at first order to current position just using cells
-        // this is just a backstop to stop crazy values coming in
-        // from a weird analytic fit
-        double linear_change = -0.5 * a[1] * n + 0.5 * a[0] * n;
-
-        //assume some radial dependence and fit it
+        // assume some radial dependence and fit it
         double analytic_change = 0.0;
         // comp = const
         if (order == 0)
@@ -322,26 +322,20 @@ void BoundaryConditions::fill_extrapolating_cell(FArrayBox &rhs_box,
         // comp = B + A*r
         else if (order == 1)
         {
-            double A = (a[1] - a[0]) / (r_a[1] - r_a[0]);
-            //double B = a[0] - A * r_a[0];
-            analytic_change = A * (radius - r_a[0]);
+            double delta_r_in_domain = r_at_point[1] - r_at_point[0];
+            double A =
+                (value_at_point[1] - value_at_point[0]) / delta_r_in_domain;
+            double delta_r_here = radius - r_at_point[0];
+            analytic_change = A * delta_r_here;
         }
-        // other orders not supported
+        // other orders not supported yet
         else
         {
             MayDay::Error("Order not supported for boundary extrapolation.");
         }
 
-        // this just ensures one does not get crazy big values
-        // which sometimes happens at corners
-        if (abs(analytic_change) > abs(linear_change))
-        {
-            rhs_box(iv, icomp) = a[0] + linear_change;
-        }
-        else
-        {
-            rhs_box(iv, icomp) = a[0] + analytic_change;
-        }
+        // set the value here to the extrapolated value
+        rhs_box(iv, icomp) = value_at_point[0] + analytic_change;
     }
 }
 
@@ -402,7 +396,7 @@ void BoundaryConditions::fill_boundary_rhs_dir(const Side::LoHiSide a_side,
             }
             case EXTRAPOLATING_BC:
             {
-                fill_extrapolating_cell(rhs_box, iv, a_side, dir, 
+                fill_extrapolating_cell(rhs_box, iv, a_side, dir,
                                         m_params.extrapolation_order);
                 break;
             }
