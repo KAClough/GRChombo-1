@@ -5,8 +5,8 @@
 
 # location / naming of output files (must give full path)
 verbosity = 0
-chk_prefix = BinaryBHChk_
-plot_prefix = BinaryBHPlot_
+chk_prefix = /home/dc-cui1/rds/rds-dirac-dp131/dc-cui1/BBH/BinaryBHChk_
+plot_prefix = /home/dc-cui1/rds/rds-dirac-dp131/dc-cui1/BBH/BinaryBHPlot_
 #restart_file = BinaryBHChk_000000.3d.hdf5
 
 # Set up coarsest level number of grid points in each dir

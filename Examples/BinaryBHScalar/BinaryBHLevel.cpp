@@ -26,7 +26,7 @@ void BinaryBHLevel::specificAdvance()
 {
     // Enforce the trace free A_ij condition and positive chi and alpha
     BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveChiAndAlpha()),
-                   m_state_new, m_state_new, INCLUDE_GHOST_CELLS);
+                   m_state_new, m_state_new, EXCLUDE_GHOST_CELLS);
 
     // Check for nan's
     if (m_p.nan_check)
@@ -88,7 +88,7 @@ void BinaryBHLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
 {
     // Enforce positive chi and alpha and trace free A
     BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveChiAndAlpha()),
-                   a_soln, a_soln, INCLUDE_GHOST_CELLS);
+                   a_soln, a_soln, EXCLUDE_GHOST_CELLS);
 
     // Calculate CCZ4 right hand side
     Potential potential(m_p.potential_params);
@@ -104,7 +104,7 @@ void BinaryBHLevel::specificUpdateODE(GRLevelData &a_soln,
                                       const GRLevelData &a_rhs, Real a_dt)
 {
     // Enforce the trace free A_ij condition
-    BoxLoops::loop(TraceARemoval(), a_soln, a_soln, INCLUDE_GHOST_CELLS);
+    BoxLoops::loop(TraceARemoval(), a_soln, a_soln, EXCLUDE_GHOST_CELLS);
 }
 
 // specify the cells to tag
