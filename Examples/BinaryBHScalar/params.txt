@@ -89,6 +89,7 @@ nonzero_asymptotic_values = 1.0 1.0 1.0 1.0 1.0
 # (the rest are assumed to be all sommerfeld)
 num_extrapolating_vars = 2
 extrapolating_vars = phi Pi
+extrapolation_order = 0
 
 # Lapse evolution
 lapse_advec_coeff = 1.0
