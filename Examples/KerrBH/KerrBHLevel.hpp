@@ -22,8 +22,8 @@ class KerrBHLevel : public GRAMRLevel
     /// Initial data calculation
     virtual void initialData() override;
 
-    /// Any actions that should happen just before checkpointing
-    virtual void preCheckpointLevel() override;
+    /// Things to do before writing a plot file
+    virtual void prePlotLevel() override;
 
     /// Calculation of the right hand side for the time stepping
     virtual void specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
@@ -33,10 +33,6 @@ class KerrBHLevel : public GRAMRLevel
     virtual void specificUpdateODE(GRLevelData &a_soln,
                                    const GRLevelData &a_rhs,
                                    Real a_dt) override;
-
-    /// Specify which variables to write at plot intervals
-    virtual void
-    specificWritePlotHeader(std::vector<int> &plot_states) const override;
 
     virtual void
     computeTaggingCriterion(FArrayBox &tagging_criterion,

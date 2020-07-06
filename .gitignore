@@ -2,9 +2,7 @@ jobscript*
 pout.*
 .bashrc
 *.pbs
-*.sh
 *.s
-jobscript*
 d
 o
 p
@@ -13,11 +11,17 @@ f
 .DS_Store
 log*
 *.ex
-*.swp
+.*.sw[n-p]
 *.out
+*.dat
 *.hdf5
 *.dSYM
+LB.txt
 Weyl_integral*
-ExtractionOut_*
+*ExtractionOut_*
+time.table.*
+*.patch
+*.log
+ipo_out.optrpt
 
 Doxygen/html

@@ -6,6 +6,7 @@
 #ifndef BINARYBHLEVEL_HPP_
 #define BINARYBHLEVEL_HPP_
 
+#include "BHAMR.hpp"
 #include "DefaultLevelFactory.hpp"
 #include "GRAMRLevel.hpp"
 
@@ -15,6 +16,8 @@ class BinaryBHLevel : public GRAMRLevel
     // Inherit the contructors from GRAMRLevel
     using GRAMRLevel::GRAMRLevel;
 
+    BHAMR &m_bh_amr = dynamic_cast<BHAMR &>(m_gr_amr);
+
     /// Things to do at every full timestep
     ///(might include several substeps, e.g. in RK4)
     virtual void specificAdvance() override;
@@ -22,8 +25,8 @@ class BinaryBHLevel : public GRAMRLevel
     /// Initial data calculation
     virtual void initialData() override;
 
-    /// Any actions that should happen just before checkpointing
-    virtual void preCheckpointLevel() override;
+    /// Things to do after a restart
+    virtual void postRestart() override;
 
     /// Calculation of the right hand side for the time stepping
     virtual void specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
@@ -44,9 +47,6 @@ class BinaryBHLevel : public GRAMRLevel
 
     /// Any actions that should happen just before plot files output
     virtual void prePlotLevel() override;
-
-    //! Specify which variables to write at plot intervals
-    virtual void specificWritePlotHeader(std::vector<int> &plot_states) const;
 };
 
 #endif /* BINARYBHLEVEL_HPP_ */

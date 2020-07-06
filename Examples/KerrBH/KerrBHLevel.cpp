@@ -37,10 +37,9 @@ void KerrBHLevel::initialData()
     if (m_verbosity)
         pout() << "KerrBHLevel::initialData " << m_level << endl;
 
-    // First set everything to zero (to avoid undefinded values on constraints)
-    // then calculate initial data  Get the Kerr solution in the variables, then
-    // calculate the \tilde\Gamma^i numerically as these  are non zero and not
-    // calculated in the Kerr ICs
+    // First set everything to zero then calculate initial data  Get the Kerr
+    // solution in the variables, then calculate the \tilde\Gamma^i numerically
+    // as these are non zero and not calculated in the Kerr ICs
     BoxLoops::loop(
         make_compute_pack(SetValue(0.), KerrBH(m_p.kerr_params, m_dx)),
         m_state_new, m_state_new, INCLUDE_GHOST_CELLS);
@@ -50,10 +49,10 @@ void KerrBHLevel::initialData()
                    EXCLUDE_GHOST_CELLS);
 }
 
-void KerrBHLevel::preCheckpointLevel()
+void KerrBHLevel::prePlotLevel()
 {
     fillAllGhosts();
-    BoxLoops::loop(Constraints(m_dx), m_state_new, m_state_new,
+    BoxLoops::loop(Constraints(m_dx), m_state_new, m_state_diagnostics,
                    EXCLUDE_GHOST_CELLS);
 }
 
@@ -66,8 +65,7 @@ void KerrBHLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
 
     // Calculate CCZ4 right hand side and set constraints to zero to avoid
     // undefined values
-    BoxLoops::loop(make_compute_pack(CCZ4(m_p.ccz4_params, m_dx, m_p.sigma),
-                                     SetValue(0, Interval(c_Ham, c_Mom3))),
+    BoxLoops::loop(CCZ4(m_p.ccz4_params, m_dx, m_p.sigma, m_p.formulation),
                    a_soln, a_rhs, EXCLUDE_GHOST_CELLS);
 }
 
@@ -76,13 +74,6 @@ void KerrBHLevel::specificUpdateODE(GRLevelData &a_soln,
 {
     // Enforce the trace free A_ij condition
     BoxLoops::loop(TraceARemoval(), a_soln, a_soln, INCLUDE_GHOST_CELLS);
-}
-
-// Specify which variables to write at plot intervals
-void KerrBHLevel::specificWritePlotHeader(std::vector<int> &plot_states) const
-{
-    // Specify the variables we want to output as plot
-    plot_states = {c_chi, c_K, c_lapse, c_shift1};
 }
 
 void KerrBHLevel::computeTaggingCriterion(FArrayBox &tagging_criterion,
