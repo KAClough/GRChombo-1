@@ -34,6 +34,11 @@ massB = 0.48847892320123
 offsetB = 0.0 -6.10679 0.0
 momentumB =  0.0841746  0.000510846 0.0
 
+# Scalar params
+scalar_mass = 1.0
+amplitude_scalar = 0.1
+G_Newton = 0.0
+
 # regridding control, specify frequency on each level
 # so need max_level + 1 entries for interval
 regrid_threshold = 0.05
@@ -49,9 +54,9 @@ block_factor = 16
 # HDF5files are written every dt = L/N*dt_multiplier*checkpoint_interval
 checkpoint_interval = 100
 # set to zero to turn off plot files, comps defined in BinaryBHLevel.cpp
-plot_interval = 10
-num_plot_vars = 3
-plot_vars = chi Weyl4_Re Weyl4_Im
+plot_interval = 1
+num_plot_vars = 2
+plot_vars = chi phi
 dt_multiplier = 0.25
 stop_time = 2200.0
 
@@ -61,8 +66,8 @@ isPeriodic = 0 0 0
 # if not periodic, then specify the boundary type
 # 0 = static, 1 = sommerfeld, 2 = reflective 3 = extrapolating 4 = mixed
 # (see BoundaryConditions.hpp for details)
-hi_boundary = 1 1 1
-lo_boundary = 1 1 1
+hi_boundary = 4 4 4
+lo_boundary = 4 4 4
 
 # if reflective boundaries selected, must set
 # parity of all vars (in order given by UserVariables.hpp)
@@ -82,8 +87,8 @@ nonzero_asymptotic_values = 1.0 1.0 1.0 1.0 1.0
 
 # if mixed boundaries selected, must specify which are extrapolating
 # (the rest are assumed to be all sommerfeld)
-#num_extrapolating_vars = 1
-#extrapolating_vars = K
+num_extrapolating_vars = 2
+extrapolating_vars = phi Pi
 
 # Lapse evolution
 lapse_advec_coeff = 1.0
@@ -107,18 +112,13 @@ sigma = 1.0
 # extraction params
 # default of extraction_center is center, uncomment to change
 #extraction_center = 256 256 256
-activate_extraction = 1
+activate_extraction = 0
 num_extraction_radii = 2
 extraction_radii = 50.0 100.0
 extraction_levels = 2 1
-num_points_phi = 24
-num_points_theta = 36
-num_modes = 8
+num_points_phi = 8
+num_points_theta = 8
+num_modes = 3
 modes = 2 0 # l m for spherical harmonics
         2 1
         2 2
-        4 0
-        4 1
-        4 2
-        4 3
-        4 4

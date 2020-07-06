@@ -12,6 +12,7 @@
 
 // Problem specific includes:
 #include "BoostedBH.hpp"
+#include "Potential.hpp"
 
 class SimulationParameters : public SimulationParametersBase
 {
@@ -55,6 +56,11 @@ class SimulationParameters : public SimulationParametersBase
         initial_puncture_coords.resize(num_punctures);
         initial_puncture_coords[0] = bh1_params.center;
         initial_puncture_coords[1] = bh2_params.center;
+
+        // for scalar
+        pp.load("G_Newton", G_Newton, 1.0);
+        pp.load("amplitude_scalar", amplitude_scalar);
+        pp.load("scalar_mass", potential_params.scalar_mass);
     }
 
     // Initial data
@@ -64,6 +70,11 @@ class SimulationParameters : public SimulationParametersBase
     // Collection of parameters necessary for initial conditions
     BoostedBH::params_t bh2_params;
     BoostedBH::params_t bh1_params;
+
+    // Initial data for matter and potential
+    double G_Newton;
+    double amplitude_scalar;
+    Potential::params_t potential_params;
 };
 
 #endif /* SIMULATIONPARAMETERS_HPP_ */
