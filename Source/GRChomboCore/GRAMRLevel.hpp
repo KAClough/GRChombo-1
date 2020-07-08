@@ -8,6 +8,9 @@
 
 #include "AMRLevel.H"
 #include "BoundaryConditions.hpp"
+#include "BoxLoops.hpp"
+#include "NanCheck.hpp"
+#include "SetValue.hpp"
 #include "CoarseAverage.H"
 #include "FourthOrderFillPatch.H"
 #include "GRAMR.hpp"

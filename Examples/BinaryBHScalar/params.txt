@@ -4,9 +4,9 @@
 # https://github.com/GRChombo/GRChombo/wiki/Running-the-BBH-example
 
 # location / naming of output files (must give full path)
-verbosity = 0
-chk_prefix = /home/dc-cui1/rds/rds-dirac-dp131/dc-cui1/BBH/BinaryBHChk_
-plot_prefix = /home/dc-cui1/rds/rds-dirac-dp131/dc-cui1/BBH/BinaryBHPlot_
+verbosity = 1
+chk_prefix = /hppfs/scratch/09/di39wem2/BBH/BinaryBHChk_
+plot_prefix = /hppfs/scratch/09/di39wem2/BBH/BinaryBHPlot_
 #restart_file = BinaryBHChk_000000.3d.hdf5
 
 # Set up coarsest level number of grid points in each dir
@@ -78,6 +78,7 @@ vars_parity            = 0 0 4 6 0 5 0    #chi and hij
                          0 0 4 6 0 5 0    #K and Aij
                          0 1 2 3          #Theta and Gamma
                          0 1 2 3 1 2 3    #lapse shift and B
+                         0 0              # phi Pi
 
 # if sommerfeld boundaries selected, must specify any nonzero
 # asymptotic values
@@ -108,7 +109,7 @@ kappa3 = 1.0
 covariantZ4 = 1 # 0: default. 1: dampk1 -> dampk1/lapse
 
 # coefficient for KO numerical dissipation
-sigma = 1.0
+sigma = 2.0
 
 # extraction params
 # default of extraction_center is center, uncomment to change
