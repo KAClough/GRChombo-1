@@ -31,7 +31,7 @@ void BinaryBHLevel::specificAdvance()
     // Check for nan's
     if (m_p.nan_check)
         BoxLoops::loop(NanCheck("NaNCheck in specific Advance: "), m_state_new,
-                       m_state_new, INCLUDE_GHOST_CELLS, disable_simd());
+                       m_state_new, EXCLUDE_GHOST_CELLS, disable_simd());
 }
 
 // This initial data uses an approximation for the metric which
@@ -86,10 +86,16 @@ void BinaryBHLevel::postRestart()
 void BinaryBHLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
                                     const double a_time)
 {
+    BoxLoops::loop(SetValue(0.0), a_rhs, a_rhs, INCLUDE_GHOST_CELLS);
+
+    // Check for nan's
+    if (m_p.nan_check)
+        BoxLoops::loop(NanCheck("NaNCheck in evalRHS: "), a_soln,
+                       a_soln, INCLUDE_GHOST_CELLS, disable_simd());
+
     // Enforce positive chi and alpha and trace free A and set all rhs to zero
     BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveChiAndAlpha()),
                    a_soln, a_soln, EXCLUDE_GHOST_CELLS);
-    BoxLoops::loop(SetValue(0.0), a_rhs, a_rhs, INCLUDE_GHOST_CELLS);
 
     // Calculate CCZ4 right hand side
     Potential potential(m_p.potential_params);

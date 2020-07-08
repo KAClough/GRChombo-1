@@ -43,7 +43,7 @@ G_Newton = 0.0
 # so need max_level + 1 entries for interval
 regrid_threshold = 0.05
 max_level = 9
-regrid_interval = 0 0 0 64 64 64 64 64 64 0
+regrid_interval = 0 1 1 64 64 64 64 64 64 0
 
 # Max and min box sizes
 max_grid_size = 16
