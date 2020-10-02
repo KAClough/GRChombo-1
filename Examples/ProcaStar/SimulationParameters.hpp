@@ -13,6 +13,54 @@
 #include "KerrSchildFixedBG.hpp"
 #include "Potential.hpp"
 #include "SpheroidalExtraction.hpp"
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <string>
+
+inline void read_number(double &data, std::string path){
+
+    double x;
+    std::ifstream inFile;
+    std::string filename = "check";
+
+    inFile.open(path);
+    if (!inFile) {
+        std::cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+    inFile >> data;
+
+    inFile.close();
+
+
+}
+
+inline void read_file(std::vector<double> &data, std::string path, bool verbose = false  ){
+
+    double x;
+    std::ifstream inFile;
+    std::string filename = "check";
+
+    inFile.open(path);
+    if (!inFile) {
+        std::cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+    while (inFile >> x) {
+        data.push_back(x);
+    }
+
+    inFile.close();
+
+    if(verbose){
+        for (std::vector<double>::iterator it = data.begin(); it != data.end(); ++it) {
+            std::cout << *it << " "<<std::endl;
+        }
+    }
+}
+
 
 class SimulationParameters : public ChomboParameters
 {
@@ -43,6 +91,30 @@ class SimulationParameters : public ChomboParameters
         // extraction params
         dx.fill(coarsest_dx);
         origin.fill(coarsest_dx / 2.0);
+
+        std::string folder = "vector_field_star_self_interacting/Lambda_0/Dim_4/f0_0.165/cA4_0.5/";
+        std::string filename_a0 = "a0.dat";
+        std::string filename_a1 = "a1.dat";
+        std::string filename_m = "m.dat";
+        std::string filename_sig = "sigma.dat";
+        std::string filename_rvals = "rvals.dat";
+        std::string filename_omega = "omega.dat";
+
+        std::string path_a0 = folder + filename_a0;
+        std::string path_a1 = folder + filename_a1;
+        std::string path_m  = folder + filename_m;
+        std::string path_sig  = folder + filename_sig;
+        std::string path_rvals  = folder + filename_rvals;
+        std::string path_omega  = folder + filename_omega;
+
+        read_file(a0,path_a0);
+        read_file(a1,path_a1);
+        read_file(m,path_m);
+        read_file(sig,path_sig);
+        read_file(rvals,path_rvals);
+        read_number(omega,path_omega);
+
+        spacing = rvals[1] - rvals[0];
 
         // Extraction params
         pp.load("num_extraction_radii", extraction_params.num_extraction_radii,
@@ -88,6 +160,13 @@ class SimulationParameters : public ChomboParameters
     int nan_check;
     std::array<double, CH_SPACEDIM> origin,
         dx; // location of coarsest origin and dx
+    std::vector<double> a0;
+    std::vector<double> a1;
+    std::vector<double> m;
+    std::vector<double> sig;
+    std::vector<double> rvals;
+    double spacing;
+    double omega;
     std::string integral_filename;
     // Collection of parameters necessary for the sims
     KerrSchildFixedBG::params_t bg_params;
