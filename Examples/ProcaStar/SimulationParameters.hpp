@@ -8,6 +8,7 @@
 
 // General includes
 #include "ChomboParameters.hpp"
+#include "SimulationParametersBase.hpp"
 #include "GRParmParse.hpp"
 // Problem specific includes:
 #include "KerrSchildFixedBG.hpp"
@@ -62,10 +63,10 @@ inline void read_file(std::vector<double> &data, std::string path, bool verbose 
 }
 
 
-class SimulationParameters : public ChomboParameters
+class SimulationParameters : public SimulationParametersBase
 {
   public:
-    SimulationParameters(GRParmParse &pp) : ChomboParameters(pp)
+    SimulationParameters(GRParmParse &pp) : SimulationParametersBase(pp)
     {
         // read the problem specific params
         readParams(pp);
@@ -87,6 +88,9 @@ class SimulationParameters : public ChomboParameters
         pp.load("field_amplitude", field_amplitude);
         pp.load("proca_damping", proca_damping);
         pp.load("excision_width", excision_width);
+        pp.load("G_Newton", G_Newton, 1.0);
+
+        field_mu = potential_params.mass;
 
         // extraction params
         dx.fill(coarsest_dx);
@@ -155,7 +159,7 @@ class SimulationParameters : public ChomboParameters
     }
 
     // Problem specific parameters
-    double field_amplitude;
+    double field_mu,field_amplitude;
     double sigma, proca_damping, excision_width;
     int nan_check;
     std::array<double, CH_SPACEDIM> origin,
@@ -165,6 +169,7 @@ class SimulationParameters : public ChomboParameters
     std::vector<double> m;
     std::vector<double> sig;
     std::vector<double> rvals;
+    double G_Newton;
     double spacing;
     double omega;
     std::string integral_filename;
