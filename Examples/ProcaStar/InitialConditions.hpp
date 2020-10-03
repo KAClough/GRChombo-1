@@ -14,6 +14,7 @@
 #include "UserVariables.hpp" //This files needs NUM_VARS - total no. components
 #include "VarsTools.hpp"
 #include "simd.hpp"
+#include "ComplexProcaField.hpp"
 
 //! Class which creates the initial conditions
 class InitialConditions
@@ -32,6 +33,10 @@ class InitialConditions
 
     // Now the non grid ADM vars
     template <class data_t> using MetricVars = ADMFixedBGVars::Vars<data_t>;
+
+    // The evolution vars
+    template <class data_t>
+    using Vars = ComplexProcaField::Vars<data_t>;
 
   public:
     //! The constructor for the class
@@ -75,14 +80,22 @@ class InitialConditions
     {
         // where am i?
         Coordinates<data_t> coords(current_cell, m_dx, m_center);
+        Vars<data_t> vars;
+        VarsTools::assign(vars, 0.);
 
         Tensor<2,double> g; // Metix Index low low
         Tensor<2,double> g_spher; // Metix Index low low
         Tensor<2,double> jacobian; // Metix Index low low
-        Tensor<1,double> Avec_spher;
-        Tensor<1,double> Avec;
+        Tensor<1,double> Avec_spher_Re;
+        Tensor<1,double> Avec_spher_Im;
+        Tensor<1,double> Avec_Re;
+        Tensor<1,double> Avec_Im;
         FOR2(i,j){ g_spher[i][j] = 0; g[i][j] = 0;}
-        FOR1(i){ Avec_spher[i] = 0;}
+        FOR1(i){ Avec_spher_Re[i] = 0;
+                 Avec_spher_Im[i] = 0;
+                 Avec_Re[i] = 0;
+                 Avec_Im[i] = 0;
+                }
         const double x = coords.x;
         const double y = coords.y;
         const double z = coords.z;
@@ -93,7 +106,7 @@ class InitialConditions
         double rho2 = pow(x, 2) + pow(y, 2);
 
         double rho = sqrt(rho2);
-        // sinus(theta)
+        // sinus(theta):
         double sintheta = rho / rr;
         double costheta = z / rr;
         // cos(phi)
@@ -127,22 +140,27 @@ class InitialConditions
         g_spher[2][2] = rr2 * pow(sintheta, 2);
 
         // set the field variable to approx profile
-        data_t phi = a0*cos(m_omega*t);
+        data_t phi_Re = a0*cos(-m_omega*t);
+        data_t phi_Im = a0*sin(-m_omega*t);
         // r Component
-        Avec_spher[0] = - a1 * sin(m_omega * t);
+        Avec_spher_Re[0] =  a1 * sin(m_omega * t);
+        Avec_spher_Im[0] =  a1 * cos(m_omega * t);
 
         FOR2(i, j)
         {
-            Avec[i] += Avec_spher[i] * jacobian[i][j];
+            Avec_Re[i] += Avec_spher_Re[i] * jacobian[i][j];
+            Avec_Im[i] += Avec_spher_Im[i] * jacobian[i][j];
             FOR2(k, l)
                     {
                         g[i][j] += g_spher[k][l] * jacobian[k][i] * jacobian[l][j];
                     }
         }
 
+        current_cell.store_vars(phi_Re, c_Avec0_Re);
+        current_cell.store_vars(phi_Im, c_Avec0_Im);
 
-
-        current_cell.store_vars(phi, c_phi);
+        current_cell.store_vars(phi_Re, c_Avec0_Re);
+        current_cell.store_vars(phi_Im, c_Avec0_Im);
     }
 };
 
