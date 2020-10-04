@@ -178,14 +178,9 @@ class InitialConditions
         current_cell.store_vars(g[1][2], c_h23);
         current_cell.store_vars(g[2][2], c_h33);
 
-/*
         current_cell.store_vars(Avec_Re[0], c_Avec1_Re);
         current_cell.store_vars(Avec_Re[1], c_Avec2_Re);
         current_cell.store_vars(Avec_Re[2], c_Avec3_Re);
-*/
-        current_cell.store_vars(x, c_Avec1_Re);
-        current_cell.store_vars(y, c_Avec2_Re);
-        current_cell.store_vars(z, c_Avec3_Re);
 
         current_cell.store_vars(Avec_Im[0], c_Avec1_Im);
         current_cell.store_vars(Avec_Im[1], c_Avec2_Im);

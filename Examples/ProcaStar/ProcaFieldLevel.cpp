@@ -29,6 +29,8 @@
 #include "Potential.hpp"
 #include "XSquared.hpp"
 #include "ComplexProcaField.hpp"
+#include "GammaCalculator.hpp"
+#include "NewMatterConstraints.hpp"
 //#include "ProcaConstraint.hpp"
 
 // Things to do at each advance step, after the RK4 is calculated
@@ -55,6 +57,9 @@ void ProcaFieldLevel::initialData()
 
     BoxLoops::loop(set_field, m_state_new, m_state_new, FILL_GHOST_CELLS,disable_simd());
 
+    fillAllGhosts();
+    BoxLoops::loop(GammaCalculator(m_dx), m_state_new, m_state_new,
+                   EXCLUDE_GHOST_CELLS);
     // BoxLoops::loop(kerr_bh, m_state_new, m_state_diagnostics,
     //                SKIP_GHOST_CELLS);
 
@@ -74,7 +79,16 @@ void ProcaFieldLevel::specificPostTimeStep()
 {}
 
 // Things to do before outputting a plot file
-void ProcaFieldLevel::prePlotLevel() {}
+void ProcaFieldLevel::prePlotLevel() {
+
+    fillAllGhosts();
+    ComplexProcaField proca_field(m_p.field_mu, m_p.proca_damping);
+    BoxLoops::loop(
+        MatterConstraints<ComplexProcaField>(
+            proca_field, m_dx, m_p.G_Newton, c_Ham, Interval(c_Mom, c_Mom)),
+        m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
+
+}
 
 // Things to do in RHS update, at each RK4 step
 void ProcaFieldLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,

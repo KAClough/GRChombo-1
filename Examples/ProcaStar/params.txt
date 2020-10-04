@@ -9,9 +9,9 @@ write_plot_ghosts = 0
 
 # Set up grid spacings and regrid params
 # NB - the N values need to be multiples of block_factor
-N1 = 128
-N2 = 128
-N3 = 64
+N1 = 64
+N2 = 64
+N3 = 32
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
@@ -55,7 +55,7 @@ vars_parity            = 0 0 4 6 0 5 0    #chi and hij
                          1 2 3 0      #Evec Z_Re
                          0 1 2 3    #phi_Re Avec_Re
                          1 2 3 0      #Evec Z_Re
-vars_parity_diagnostic = 0 0 0 0 0 0   #rho rhoJ etc
+vars_parity_diagnostic = 0 0 0 0 0 0 0 0 0 0 0   #rho rhoJ etc
 
 # if sommerfeld boundaries selected, must specify any
 # nonzero asymptotic values
@@ -68,9 +68,9 @@ nonzero_asymptotic_values = 0.0
 # dt will be dx*dt_multiplier on each grid level
 # HDF5files are written every dt = L/N*dt_multiplier*checkpoint_interval
 checkpoint_interval = 1
-plot_interval = 0
+plot_interval = 1
 num_plot_vars = 3
-plot_vars = phi Z rho
+plot_vars = phi Ham rho
 dt_multiplier = 0.15
 stop_time = 10000.0
 
