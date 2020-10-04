@@ -21,7 +21,6 @@ class InitialConditions
 {
   protected:
     const double m_dx;
-    const double m_amplitude;
     const double m_spacing;
     const double m_omega;
     const std::vector<double> m_a0;
@@ -29,7 +28,6 @@ class InitialConditions
     const std::vector<double> m_m;
     const std::vector<double> m_sig;
     const std::array<double, CH_SPACEDIM> m_center;
-    const KerrSchildFixedBG::params_t m_bg_params;
 
     // Now the non grid ADM vars
     template <class data_t> using MetricVars = ADMFixedBGVars::Vars<data_t>;
@@ -40,9 +38,8 @@ class InitialConditions
 
   public:
     //! The constructor for the class
-    InitialConditions(const double a_amplitude,
+    InitialConditions(
                       const std::array<double, CH_SPACEDIM> a_center,
-                      const KerrSchildFixedBG::params_t a_bg_params,
                       const double a_dx,
                       std::vector<double> a0,
                       std::vector<double> a1,
@@ -51,8 +48,8 @@ class InitialConditions
                       double spacing,
                       double omega
                       )
-        : m_dx(a_dx), m_amplitude(a_amplitude), m_center(a_center),
-          m_bg_params(a_bg_params), m_a0(a0), m_a1(a1), m_m(m), m_sig(sig),
+        : m_dx(a_dx), m_center(a_center),
+         m_a0(a0), m_a1(a1), m_m(m), m_sig(sig),
           m_spacing(spacing), m_omega(omega)
     {
     }

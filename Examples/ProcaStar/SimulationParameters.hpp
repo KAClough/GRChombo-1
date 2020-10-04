@@ -85,9 +85,7 @@ class SimulationParameters : public SimulationParametersBase
         pp.load("bh_center", bg_params.center, center);
         pp.load("proca_mass", potential_params.mass);
         pp.load("proca_self_interaction", potential_params.self_interaction);
-        pp.load("field_amplitude", field_amplitude);
         pp.load("proca_damping", proca_damping);
-        pp.load("excision_width", excision_width);
         pp.load("G_Newton", G_Newton, 1.0);
 
         field_mu = potential_params.mass;
@@ -159,8 +157,8 @@ class SimulationParameters : public SimulationParametersBase
     }
 
     // Problem specific parameters
-    double field_mu,field_amplitude;
-    double sigma, proca_damping, excision_width;
+    double field_mu;
+    double sigma, proca_damping;
     int nan_check;
     std::array<double, CH_SPACEDIM> origin,
         dx; // location of coarsest origin and dx

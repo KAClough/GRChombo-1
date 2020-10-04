@@ -78,11 +78,9 @@ stop_time = 10000.0
 sigma = 1.0
 
 # PF Initial data
-proca_mass = 0.5
+proca_mass = 0.70710678119
 proca_self_interaction = 400.0
 proca_damping = 0.1
-field_amplitude = 0.01
-excision_width = 0.9
 
 # Boosted BH initial data, boost in x direction, spin in z direction
 bh_mass = 1.0
