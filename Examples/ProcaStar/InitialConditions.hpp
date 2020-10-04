@@ -59,10 +59,11 @@ class InitialConditions
 
 
      double linear_interpolation(const  std::vector<double> vector, const double rr) const {
-        int indxL = static_cast<int>(floor(rr / m_spacing));
-        int indxH = static_cast<int>(ceil(rr / m_spacing));
+        const int indxL = static_cast<int>(floor(rr / m_spacing));
+        const int indxH = static_cast<int>(ceil(rr / m_spacing));
+        const int ind_max = vector.size();
 
-        if ( indxH < vector.size()){
+        if ( indxH < ind_max){
             const double interpolation_value =
             vector[indxL] +
             (rr / m_spacing - indxL) * (vector[indxH] - vector[indxL]);
@@ -70,8 +71,7 @@ class InitialConditions
             return interpolation_value;
         }
         else{
-
-            return 0;
+            return vector[ind_max-1];
         }
     }
 
@@ -84,6 +84,7 @@ class InitialConditions
         VarsTools::assign(vars, 0.);
 
         Tensor<2,double> g; // Metix Index low low
+        Tensor<2,double> g_conf; // Metix Index low low
         Tensor<2,double> g_spher; // Metix Index low low
         Tensor<2,double> jacobian; // Metix Index low low
         Tensor<1,double> Avec_spher_Re;
@@ -156,11 +157,41 @@ class InitialConditions
                     }
         }
 
-        current_cell.store_vars(phi_Re, c_Avec0_Re);
-        current_cell.store_vars(phi_Im, c_Avec0_Im);
+         data_t deth = g[0][0]*(g[1][1]*g[2][2]-g[1][2]*g[2][1])-
+         g[0][1]*(g[2][2]*g[1][0]-g[1][2]*g[2][0])+
+         g[0][2]*(g[1][0]*g[2][1]-g[1][1]*g[2][0]);
+
+        data_t chi = pow(deth,-1.0/3.0);
+
+        FOR2(i,j)
+         {
+           g_conf[i][j] = g[i][j]*chi;
+         }
+
+
+        current_cell.store_vars(chi, c_chi);
+        current_cell.store_vars(lapse, c_lapse);
+
+        current_cell.store_vars(g[0][0], c_h11);
+        current_cell.store_vars(g[0][1], c_h12);
+        current_cell.store_vars(g[0][2], c_h13);
+        current_cell.store_vars(g[1][1], c_h22);
+        current_cell.store_vars(g[1][2], c_h23);
+        current_cell.store_vars(g[2][2], c_h33);
+
+
+        current_cell.store_vars(Avec_Re[0], c_Avec1_Re);
+        current_cell.store_vars(Avec_Re[1], c_Avec2_Re);
+        current_cell.store_vars(Avec_Re[2], c_Avec3_Re);
+
+        current_cell.store_vars(Avec_Im[0], c_Avec1_Im);
+        current_cell.store_vars(Avec_Im[1], c_Avec2_Im);
+        current_cell.store_vars(Avec_Im[2], c_Avec3_Im);
 
         current_cell.store_vars(phi_Re, c_Avec0_Re);
         current_cell.store_vars(phi_Im, c_Avec0_Im);
+
+        current_cell.store_vars(chi, c_chi);
     }
 };
 

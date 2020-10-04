@@ -9,14 +9,14 @@ write_plot_ghosts = 0
 
 # Set up grid spacings and regrid params
 # NB - the N values need to be multiples of block_factor
-N1 = 64
-N2 = 64
-N3 = 32
+N1 = 128
+N2 = 128
+N3 = 64
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
-L = 64
-#center = 32.0 32.0 0.0
+L = 32
+#center = 16.0 16.0 0.0
 
 # Level data
 # Maximum number of times you can regrid above coarsest level
@@ -39,8 +39,8 @@ isPeriodic = 0 0 0
 # if not periodic, then specify the boundary type
 # 0 = static, 1 = sommerfeld, 2 = reflective, 3 = extrapolating
 # (see BoundaryConditions.hpp for details)
-hi_boundary = 1 1 1
-lo_boundary = 1 1 2
+hi_boundary = 0 0 0
+lo_boundary = 0 0 2
 
 # if reflective boundaries selected, must set
 # parity of all vars (in order given by UserVariables.hpp)
