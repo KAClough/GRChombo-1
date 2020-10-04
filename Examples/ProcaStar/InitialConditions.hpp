@@ -121,16 +121,15 @@ class InitialConditions
         const double m = linear_interpolation(m_m,rr);
         const double sig = linear_interpolation(m_sig,rr);
 
-        jacobian[0][0] = x / rr;
-        jacobian[1][0] = cosphi * z / rr2;
-        jacobian[2][0] = -y / rho2;
-        jacobian[0][1] = y / rr;
-        jacobian[1][1] = sinphi * z / rr2;
-        jacobian[2][1] = x / rho2;
-        jacobian[0][2] = z / rr;
-        jacobian[1][2] = -rho / rr2;
-        jacobian[2][2] = 0.0;
-        jacobian[3][3] = 1.0;
+        jacobian[0][0] = x/rr ;
+        jacobian[1][0] = cosphi*z/rr2 ;
+        jacobian[2][0] = -y/rho2 ;
+        jacobian[0][1] = y/rr ;
+        jacobian[1][1] = sinphi*z/rr2 ;
+        jacobian[2][1] = x/rho2 ;
+        jacobian[0][2] = z/rr ;
+        jacobian[1][2] = -rho/rr2 ;
+        jacobian[2][2] = 0.0 ;
 
         const double lapse = sig * sqrt(1.0 - 2.0* m / rr);
         // Define r r component
@@ -149,8 +148,8 @@ class InitialConditions
 
         FOR2(i, j)
         {
-            Avec_Re[i] += Avec_spher_Re[i] * jacobian[i][j];
-            Avec_Im[i] += Avec_spher_Im[i] * jacobian[i][j];
+            Avec_Re[i] += Avec_spher_Re[j] * jacobian[i][j];
+            Avec_Im[i] += Avec_spher_Im[j] * jacobian[i][j];
             FOR2(k, l)
                     {
                         g[i][j] += g_spher[k][l] * jacobian[k][i] * jacobian[l][j];
@@ -179,10 +178,14 @@ class InitialConditions
         current_cell.store_vars(g[1][2], c_h23);
         current_cell.store_vars(g[2][2], c_h33);
 
-
+/*
         current_cell.store_vars(Avec_Re[0], c_Avec1_Re);
         current_cell.store_vars(Avec_Re[1], c_Avec2_Re);
         current_cell.store_vars(Avec_Re[2], c_Avec3_Re);
+*/
+        current_cell.store_vars(x, c_Avec1_Re);
+        current_cell.store_vars(y, c_Avec2_Re);
+        current_cell.store_vars(z, c_Avec3_Re);
 
         current_cell.store_vars(Avec_Im[0], c_Avec1_Im);
         current_cell.store_vars(Avec_Im[1], c_Avec2_Im);
