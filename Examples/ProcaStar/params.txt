@@ -15,12 +15,14 @@ N3 = 32
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
-L = 32
-#center = 16.0 16.0 0.0
+L = 64
+#center = 32.0 32.0 0.0
 
 # Level data
 # Maximum number of times you can regrid above coarsest level
-max_level = 0 # There are (max_level+1) grids, so min is zero
+max_level = 3 # There are (max_level+1) grids, so min is zero
+threshold_chi = 0.01
+threshold_phi = 0.01
 # Frequency of regridding at each level
 # Need one for each level, ie max_level+1 items
 # Generally you do not need to regrid frequently on every level

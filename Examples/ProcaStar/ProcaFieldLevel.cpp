@@ -31,6 +31,7 @@
 #include "ComplexProcaField.hpp"
 #include "GammaCalculator.hpp"
 #include "NewMatterConstraints.hpp"
+#include "ComplexAvecTaggingCriterion.hpp"
 //#include "ProcaConstraint.hpp"
 
 // Things to do at each advance step, after the RK4 is calculated
@@ -108,6 +109,6 @@ void ProcaFieldLevel::computeTaggingCriterion(FArrayBox &tagging_criterion,
                                               const FArrayBox &current_state)
 {
     const double radius_bh = 1.75;
-    BoxLoops::loop(FixedGridsTaggingCriterionBH(m_dx, m_level, m_p.max_level, m_p.L, m_p.center, radius_bh),
+    BoxLoops::loop(ComplexAvecTaggingCriterion(m_dx, m_p.threshold_chi,m_p.threshold_phi),
                    current_state, tagging_criterion, disable_simd());
 }
