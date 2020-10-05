@@ -23,7 +23,6 @@
 #include "FixedBGEnergyAndAngularMomFlux.hpp"
 #include "FixedBGEvolution.hpp"
 //#include "FixedBGProcaField.hpp"
-#include "FluxExtraction.hpp"
 #include "InitialConditions.hpp"
 #include "KerrSchildFixedBG.hpp"
 #include "Potential.hpp"

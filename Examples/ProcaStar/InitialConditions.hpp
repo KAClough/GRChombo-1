@@ -145,8 +145,8 @@ class InitialConditions
 
         FOR2(i, j)
         {
-            Avec_Re[i] += Avec_spher_Re[j] * jacobian[i][j];
-            Avec_Im[i] += Avec_spher_Im[j] * jacobian[i][j];
+            Avec_Re[j] += Avec_spher_Re[i] * jacobian[i][j];
+            Avec_Im[j] += Avec_spher_Im[i] * jacobian[i][j];
             FOR2(k, l)
                     {
                         g[i][j] += g_spher[k][l] * jacobian[k][i] * jacobian[l][j];
@@ -186,7 +186,6 @@ class InitialConditions
         current_cell.store_vars(phi_Re, c_Avec0_Re);
         current_cell.store_vars(phi_Im, c_Avec0_Im);
 
-        current_cell.store_vars(chi, c_chi);
     }
 };
 

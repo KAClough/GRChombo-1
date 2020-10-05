@@ -15,12 +15,12 @@ N3 = 32
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
-L = 64
-#center = 32.0 32.0 0.0
+L = 16
+#center = 8.0 8.0 0.0
 
 # Level data
 # Maximum number of times you can regrid above coarsest level
-max_level = 3 # There are (max_level+1) grids, so min is zero
+max_level = 1 # There are (max_level+1) grids, so min is zero
 threshold_chi = 0.01
 threshold_phi = 0.01
 # Frequency of regridding at each level
@@ -72,7 +72,7 @@ nonzero_asymptotic_values = 0.0
 checkpoint_interval = 1
 plot_interval = 1
 num_plot_vars = 3
-plot_vars = phi Ham rho
+plot_vars = phii_Re Ham
 dt_multiplier = 0.15
 stop_time = 10000.0
 
@@ -80,7 +80,7 @@ stop_time = 10000.0
 sigma = 1.0
 
 # PF Initial data
-proca_mass = 0.70710678119
+proca_mass = 0.25
 proca_self_interaction = 400.0
 proca_damping = 0.1
 
