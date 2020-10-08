@@ -24,6 +24,7 @@ class InitialConditions
     const double m_spacing;
     const double m_omega;
     const std::vector<double> m_a0;
+    const std::vector<double> m_da0dr;
     const std::vector<double> m_a1;
     const std::vector<double> m_m;
     const std::vector<double> m_sig;
@@ -42,6 +43,7 @@ class InitialConditions
                       const std::array<double, CH_SPACEDIM> a_center,
                       const double a_dx,
                       std::vector<double> a0,
+                      std::vector<double> da0dr,
                       std::vector<double> a1,
                       std::vector<double> m,
                       std::vector<double> sig,
@@ -88,11 +90,20 @@ class InitialConditions
         Tensor<1,double> Avec_spher_Im;
         Tensor<1,double> Avec_Re;
         Tensor<1,double> Avec_Im;
+        Tensor<1,double> Evec_spher_Re;
+        Tensor<1,double> Evec_spher_Im;
+        Tensor<1,double> Evec_Re;
+        Tensor<1,double> Evec_Im;
         FOR2(i,j){ g_spher[i][j] = 0; g[i][j] = 0;}
-        FOR1(i){ Avec_spher_Re[i] = 0;
+        FOR1(i){
+                 Avec_spher_Re[i] = 0;
                  Avec_spher_Im[i] = 0;
                  Avec_Re[i] = 0;
                  Avec_Im[i] = 0;
+                 Evec_spher_Re[i] = 0;
+                 Evec_spher_Im[i] = 0;
+                 Evec_Re[i] = 0;
+                 Evec_Im[i] = 0;
                 }
         const double x = coords.x;
         const double y = coords.y;
@@ -114,6 +125,7 @@ class InitialConditions
 
 
         const double a0 = linear_interpolation(m_a0,rr);
+        const double da0dr = linear_interpolation(m_da0dr,rr);
         const double a1 = linear_interpolation(m_a1,rr);
         const double m = linear_interpolation(m_m,rr);
         const double sig = linear_interpolation(m_sig,rr);
@@ -142,11 +154,15 @@ class InitialConditions
         // r Component
         Avec_spher_Re[0] =  a1 * sin(m_omega * t);
         Avec_spher_Im[0] =  a1 * cos(m_omega * t);
+        Evec_spher_Re[0] =  sqrt(1.0 - 2.0 * m / rr )/sig * (-m_omega*a1+da0dr) * cos(m_omega * t);
+        Evec_spher_Im[0] =  sqrt(1.0 - 2.0 * m / rr )/sig * (-m_omega*a1+da0dr) * (-sin(m_omega * t));
 
         FOR2(i, j)
         {
             Avec_Re[j] += Avec_spher_Re[i] * jacobian[i][j];
             Avec_Im[j] += Avec_spher_Im[i] * jacobian[i][j];
+            Evec_Re[j] += Evec_spher_Re[i] * jacobian[i][j];
+            Evec_Im[j] += Evec_spher_Im[i] * jacobian[i][j];
             FOR2(k, l)
                     {
                         g[i][j] += g_spher[k][l] * jacobian[k][i] * jacobian[l][j];

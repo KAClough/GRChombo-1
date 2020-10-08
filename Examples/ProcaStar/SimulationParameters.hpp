@@ -99,6 +99,7 @@ class SimulationParameters : public SimulationParametersBase
 
         std::string folder = "vector_field_star_self_interacting/Lambda_0/Dim_4/f0_0.165/cA4_0.0/";
         std::string filename_a0 = "a0.dat";
+        std::string filename_da0dr = "da0dr.dat";
         std::string filename_a1 = "a1.dat";
         std::string filename_m = "m.dat";
         std::string filename_sig = "sigma.dat";
@@ -106,6 +107,7 @@ class SimulationParameters : public SimulationParametersBase
         std::string filename_omega = "omega.dat";
 
         std::string path_a0 = folder + filename_a0;
+        std::string path_da0dr = folder + filename_da0dr;
         std::string path_a1 = folder + filename_a1;
         std::string path_m  = folder + filename_m;
         std::string path_sig  = folder + filename_sig;
@@ -113,6 +115,7 @@ class SimulationParameters : public SimulationParametersBase
         std::string path_omega  = folder + filename_omega;
 
         read_file(a0,path_a0);
+        read_file(da0dr,path_da0dr);
         read_file(a1,path_a1);
         read_file(m,path_m);
         read_file(sig,path_sig);
@@ -167,6 +170,7 @@ class SimulationParameters : public SimulationParametersBase
     std::array<double, CH_SPACEDIM> origin,
         dx; // location of coarsest origin and dx
     std::vector<double> a0;
+    std::vector<double> da0dr;
     std::vector<double> a1;
     std::vector<double> m;
     std::vector<double> sig;
