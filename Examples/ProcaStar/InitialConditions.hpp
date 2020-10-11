@@ -51,7 +51,7 @@ class InitialConditions
                       double omega
                       )
         : m_dx(a_dx), m_center(a_center),
-         m_a0(a0), m_a1(a1), m_m(m), m_sig(sig),
+         m_a0(a0), m_da0dr(da0dr), m_a1(a1), m_m(m), m_sig(sig),
           m_spacing(spacing), m_omega(omega)
     {
     }
@@ -123,10 +123,10 @@ class InitialConditions
         // sin(phi)
         double sinphi = y / rho;
 
-
-        const double a0 = linear_interpolation(m_a0,rr);
-        const double da0dr = linear_interpolation(m_da0dr,rr);
-        const double a1 = linear_interpolation(m_a1,rr);
+        const double norm = 1.0/sqrt(16.0*M_PI);
+        const double a0 = norm*linear_interpolation(m_a0,rr);
+        const double da0dr = norm*linear_interpolation(m_da0dr,rr);
+        const double a1 = norm*linear_interpolation(m_a1,rr);
         const double m = linear_interpolation(m_m,rr);
         const double sig = linear_interpolation(m_sig,rr);
 
@@ -149,13 +149,13 @@ class InitialConditions
         g_spher[2][2] = rr2 * pow(sintheta, 2);
 
         // set the field variable to approx profile
-        data_t phi_Re = a0*cos(-m_omega*t);
-        data_t phi_Im = a0*sin(-m_omega*t);
+        data_t phi_Re = - 1.0/lapse * a0 * cos(-m_omega*t);
+        data_t phi_Im = - 1.0/lapse * a0 * sin(-m_omega*t);
         // r Component
         Avec_spher_Re[0] =  a1 * sin(m_omega * t);
         Avec_spher_Im[0] =  a1 * cos(m_omega * t);
-        Evec_spher_Re[0] =  sqrt(1.0 - 2.0 * m / rr )/sig * (-m_omega*a1+da0dr) * cos(m_omega * t);
-        Evec_spher_Im[0] =  sqrt(1.0 - 2.0 * m / rr )/sig * (-m_omega*a1+da0dr) * (-sin(m_omega * t));
+        Evec_spher_Re[0] =  sqrt(1.0 - 2.0 * m / rr )/sig * (-m_omega*a1 + da0dr) * cos(-m_omega * t);
+        Evec_spher_Im[0] =  sqrt(1.0 - 2.0 * m / rr )/sig * (-m_omega*a1 + da0dr) * sin(-m_omega * t);
 
         FOR2(i, j)
         {
@@ -198,6 +198,14 @@ class InitialConditions
         current_cell.store_vars(Avec_Im[0], c_Avec1_Im);
         current_cell.store_vars(Avec_Im[1], c_Avec2_Im);
         current_cell.store_vars(Avec_Im[2], c_Avec3_Im);
+
+        current_cell.store_vars(Evec_Re[0], c_Evec1_Re);
+        current_cell.store_vars(Evec_Re[1], c_Evec2_Re);
+        current_cell.store_vars(Evec_Re[2], c_Evec3_Re);
+
+        current_cell.store_vars(Evec_Im[0], c_Evec1_Im);
+        current_cell.store_vars(Evec_Im[1], c_Evec2_Im);
+        current_cell.store_vars(Evec_Im[2], c_Evec3_Im);
 
         current_cell.store_vars(phi_Re, c_Avec0_Re);
         current_cell.store_vars(phi_Im, c_Avec0_Im);
