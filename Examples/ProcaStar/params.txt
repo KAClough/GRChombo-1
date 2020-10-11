@@ -21,8 +21,8 @@ L = 32
 # Level data
 # Maximum number of times you can regrid above coarsest level
 max_level = 1 # There are (max_level+1) grids, so min is zero
-threshold_chi = 0.01
-threshold_phi = 0.01
+threshold_K = 0.01
+threshold_phi = 0.0005
 # Frequency of regridding at each level
 # Need one for each level, ie max_level+1 items
 # Generally you do not need to regrid frequently on every level
@@ -75,7 +75,7 @@ num_plot_vars = 3
 plot_vars = phi_Re Ham rho
 dt_multiplier = 0.15
 stop_time = 0.1
-G_Newton = 0.00
+G_Newton = 1.0
 
 # coefficient for KO numerical dissipation
 sigma = 1.0

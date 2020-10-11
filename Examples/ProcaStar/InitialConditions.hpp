@@ -169,13 +169,11 @@ class InitialConditions
                     }
         }
 
-         data_t deth = g[0][0]*(g[1][1]*g[2][2]-g[1][2]*g[2][1])-
-         g[0][1]*(g[2][2]*g[1][0]-g[1][2]*g[2][0])+
-         g[0][2]*(g[1][0]*g[2][1]-g[1][1]*g[2][0]);
+         data_t deth = TensorAlgebra::compute_determinant<data_t>(g);
 
-        data_t chi = pow(deth,-1.0/3.0);
+         data_t chi = pow(deth,-1.0/3.0);
 
-        FOR2(i,j)
+         FOR2(i,j)
          {
            g_conf[i][j] = g[i][j]*chi;
          }

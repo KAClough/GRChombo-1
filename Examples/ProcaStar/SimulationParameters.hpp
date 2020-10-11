@@ -88,7 +88,7 @@ class SimulationParameters : public SimulationParametersBase
         pp.load("proca_damping", proca_damping);
         pp.load("G_Newton", G_Newton, 1.0);
         pp.load("threshold_phi",threshold_phi);
-        pp.load("threshold_chi",threshold_chi);
+        pp.load("threshold_K",threshold_K);
 
 
         field_mu = potential_params.mass;
@@ -165,7 +165,7 @@ class SimulationParameters : public SimulationParametersBase
     // Problem specific parameters
     double field_mu;
     double sigma, proca_damping;
-    double threshold_phi, threshold_chi;
+    double threshold_phi, threshold_K;
     int nan_check;
     std::array<double, CH_SPACEDIM> origin,
         dx; // location of coarsest origin and dx
