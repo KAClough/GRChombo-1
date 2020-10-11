@@ -31,6 +31,7 @@
 #include "GammaCalculator.hpp"
 #include "NewMatterConstraints.hpp"
 #include "ComplexAvecTaggingCriterion.hpp"
+#include "Density.hpp"
 //#include "ProcaConstraint.hpp"
 
 // Things to do at each advance step, after the RK4 is calculated
@@ -60,18 +61,6 @@ void ProcaFieldLevel::initialData()
     fillAllGhosts();
     BoxLoops::loop(GammaCalculator(m_dx), m_state_new, m_state_new,
                    EXCLUDE_GHOST_CELLS);
-    // BoxLoops::loop(kerr_bh, m_state_new, m_state_diagnostics,
-    //                SKIP_GHOST_CELLS);
-
-    // now the gauss constraint
-    /*
-        fillAllGhosts();
-        ProcaConstraint enforce_constraint(m_p.center, m_p.bg_params,
-                                           m_p.potential_params.mass, m_dx);
-        BoxLoops::loop(enforce_constraint, m_state_new, m_state_new,
-                       EXCLUDE_GHOST_CELLS);
-    */
-    // make excision data zero
 }
 
 // Things to do after each timestep
@@ -88,6 +77,10 @@ void ProcaFieldLevel::prePlotLevel() {
             proca_field, m_dx, m_p.G_Newton, c_Ham, Interval(c_Mom, c_Mom)),
         m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
 
+    BoxLoops::loop(
+        Density<ComplexProcaField>(
+            proca_field, m_dx),
+        m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
 }
 
 // Things to do in RHS update, at each RK4 step

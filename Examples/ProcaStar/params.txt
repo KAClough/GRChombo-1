@@ -15,12 +15,12 @@ N3 = 32
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
-L = 16
-#center = 8.0 8.0 0.0
+L = 32
+#center = 16.0 16.0 0.0
 
 # Level data
 # Maximum number of times you can regrid above coarsest level
-max_level = 0 # There are (max_level+1) grids, so min is zero
+max_level = 1 # There are (max_level+1) grids, so min is zero
 threshold_chi = 0.01
 threshold_phi = 0.01
 # Frequency of regridding at each level
@@ -71,11 +71,11 @@ nonzero_asymptotic_values = 0.0
 # HDF5files are written every dt = L/N*dt_multiplier*checkpoint_interval
 checkpoint_interval = 1
 plot_interval = 1
-num_plot_vars = 2
-plot_vars = phi_Re Ham
+num_plot_vars = 3
+plot_vars = phi_Re Ham rho
 dt_multiplier = 0.15
-stop_time = 1.0
-G_Newton = 1
+stop_time = 0.1
+G_Newton = 0.00
 
 # coefficient for KO numerical dissipation
 sigma = 1.0
