@@ -74,8 +74,8 @@ plot_interval = 1
 num_plot_vars = 3
 plot_vars = phi_Re Ham rho
 dt_multiplier = 0.15
-stop_time = 0.1
-G_Newton = 1.0
+stop_time = 0.05
+G_Newton = 0.0
 
 # coefficient for KO numerical dissipation
 sigma = 1.0

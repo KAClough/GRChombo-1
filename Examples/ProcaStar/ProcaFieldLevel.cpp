@@ -17,14 +17,8 @@
 #include "MatterCCZ4.hpp"
 
 // Problem specific includes
-#include "ExcisionProcaDiagnostics.hpp"
-#include "ExcisionProcaEvolution.hpp"
-#include "FixedBGDensityAndAngularMom.hpp"
-#include "FixedBGEnergyAndAngularMomFlux.hpp"
-#include "FixedBGEvolution.hpp"
 //#include "FixedBGProcaField.hpp"
 #include "InitialConditions.hpp"
-#include "KerrSchildFixedBG.hpp"
 #include "Potential.hpp"
 #include "XSquared.hpp"
 #include "ComplexProcaField.hpp"
