@@ -14,6 +14,7 @@
 #include "KerrSchildFixedBG.hpp"
 #include "Potential.hpp"
 #include "SpheroidalExtraction.hpp"
+#include "InitialConditions.hpp"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -114,15 +115,15 @@ class SimulationParameters : public SimulationParametersBase
         std::string path_rvals  = folder + filename_rvals;
         std::string path_omega  = folder + filename_omega;
 
-        read_file(a0,path_a0);
-        read_file(da0dr,path_da0dr);
-        read_file(a1,path_a1);
-        read_file(m,path_m);
-        read_file(sig,path_sig);
+        read_file(initalcondition_data.a0,path_a0);
+        read_file(initalcondition_data.da0dr,path_da0dr);
+        read_file(initalcondition_data.a1,path_a1);
+        read_file(initalcondition_data.m,path_m);
+        read_file(initalcondition_data.sig,path_sig);
         read_file(rvals,path_rvals);
-        read_number(omega,path_omega);
+        read_number(initalcondition_data.omega,path_omega);
 
-        spacing = rvals[1] - rvals[0];
+        initalcondition_data.spacing = rvals[1] - rvals[0];
 
         // Extraction params
         pp.load("num_extraction_radii", extraction_params.num_extraction_radii,
@@ -169,12 +170,8 @@ class SimulationParameters : public SimulationParametersBase
     int nan_check;
     std::array<double, CH_SPACEDIM> origin,
         dx; // location of coarsest origin and dx
-    std::vector<double> a0;
-    std::vector<double> da0dr;
-    std::vector<double> a1;
-    std::vector<double> m;
-    std::vector<double> sig;
     std::vector<double> rvals;
+    InitialConditions::params_t initalcondition_data;
     double G_Newton;
     double spacing;
     double omega;

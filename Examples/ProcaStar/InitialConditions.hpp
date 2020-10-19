@@ -38,21 +38,27 @@ class InitialConditions
     using Vars = ComplexProcaField::Vars<data_t>;
 
   public:
+    struct params_t {
+        std::vector<double> a0;
+        std::vector<double> da0dr;
+        std::vector<double> a1;
+        std::vector<double> m;
+        std::vector<double> sig;
+        double omega;
+        double spacing;
+    };
+
+
     //! The constructor for the class
     InitialConditions(
                       const std::array<double, CH_SPACEDIM> a_center,
                       const double a_dx,
-                      std::vector<double> a0,
-                      std::vector<double> da0dr,
-                      std::vector<double> a1,
-                      std::vector<double> m,
-                      std::vector<double> sig,
-                      double spacing,
-                      double omega
+                      params_t initalcondition_data
                       )
-        : m_dx(a_dx), m_center(a_center),
-         m_a0(a0), m_da0dr(da0dr), m_a1(a1), m_m(m), m_sig(sig),
-          m_spacing(spacing), m_omega(omega)
+        : m_dx(a_dx), m_center(a_center), m_a0(initalcondition_data.a0),
+        m_da0dr(initalcondition_data.da0dr),m_a1(initalcondition_data.a1),
+        m_m(initalcondition_data.m),m_sig(initalcondition_data.sig),
+        m_spacing(initalcondition_data.spacing),m_omega(initalcondition_data.omega)
     {
     }
 
