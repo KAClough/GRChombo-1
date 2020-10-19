@@ -159,10 +159,10 @@ class InitialConditions
 
         FOR2(i, j)
         {
-            Avec_Re[j] += Avec_spher_Re[i] * jacobian[i][j];
-            Avec_Im[j] += Avec_spher_Im[i] * jacobian[i][j];
-            Evec_Re[j] += Evec_spher_Re[i] * jacobian[i][j];
-            Evec_Im[j] += Evec_spher_Im[i] * jacobian[i][j];
+            Avec_Re[i] += Avec_spher_Re[j] * jacobian[j][i];
+            Avec_Im[i] += Avec_spher_Im[j] * jacobian[j][i];
+            Evec_Re[i] += Evec_spher_Re[j] * jacobian[j][i];
+            Evec_Im[i] += Evec_spher_Im[j] * jacobian[j][i];
             FOR2(k, l)
                     {
                         g[i][j] += g_spher[k][l] * jacobian[k][i] * jacobian[l][j];

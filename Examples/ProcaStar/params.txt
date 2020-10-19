@@ -15,12 +15,12 @@ N3 = 32
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
-L = 32
-#center = 16.0 16.0 0.0
+L = 16
+#center = 8.0 8.0 0.0
 
 # Level data
 # Maximum number of times you can regrid above coarsest level
-max_level = 1 # There are (max_level+1) grids, so min is zero
+max_level = 0 # There are (max_level+1) grids, so min is zero
 threshold_K = 0.01
 threshold_phi = 0.0005
 # Frequency of regridding at each level
@@ -74,7 +74,7 @@ plot_interval = 1
 num_plot_vars = 3
 plot_vars = phi_Re Ham rho
 dt_multiplier = 0.15
-stop_time = 0.05
+stop_time = 0.0025
 G_Newton = 0.0
 
 # coefficient for KO numerical dissipation
