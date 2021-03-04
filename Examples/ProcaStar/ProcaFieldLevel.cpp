@@ -26,7 +26,7 @@
 #include "NewMatterConstraints.hpp"
 #include "ComplexAvecTaggingCriterion.hpp"
 #include "Density.hpp"
-//#include "ProcaConstraint.hpp"
+#include "ComplexProcaFieldConstraints.hpp"
 
 // Things to do at each advance step, after the RK4 is calculated
 void ProcaFieldLevel::specificAdvance()
@@ -49,11 +49,19 @@ void ProcaFieldLevel::initialData()
     InitialConditions set_field( m_p.center,
                                m_dx , m_p.initalcondition_data);
 
-    BoxLoops::loop(set_field, m_state_new, m_state_new, FILL_GHOST_CELLS,disable_simd());
+    BoxLoops::loop( make_compute_pack(SetValue(0.), set_field), m_state_new, m_state_new, FILL_GHOST_CELLS,disable_simd());
 
     fillAllGhosts();
     BoxLoops::loop(GammaCalculator(m_dx), m_state_new, m_state_new,
                    EXCLUDE_GHOST_CELLS);
+
+    fillAllGhosts();
+    ComplexProcaField proca_field(m_p.field_mu, m_p.proca_damping);
+    BoxLoops::loop(
+        ComplexProcaFieldConstraints<ComplexProcaField>(
+            proca_field, m_dx, m_p.field_mu, m_p.G_Newton),
+        m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
+
 }
 
 // Things to do after each timestep
@@ -68,6 +76,11 @@ void ProcaFieldLevel::prePlotLevel() {
     BoxLoops::loop(
         MatterConstraints<ComplexProcaField>(
             proca_field, m_dx, m_p.G_Newton, c_Ham, Interval(c_Mom, c_Mom)),
+        m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
+
+    BoxLoops::loop(
+        ComplexProcaFieldConstraints<ComplexProcaField>(
+            proca_field, m_dx, m_p.field_mu, m_p.G_Newton),
         m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
 
     BoxLoops::loop(
