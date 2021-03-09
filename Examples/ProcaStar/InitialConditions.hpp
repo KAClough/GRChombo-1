@@ -11,6 +11,7 @@
 #include "Coordinates.hpp"
 #include "KerrSchildFixedBG.hpp"
 #include "Tensor.hpp"
+#include "TensorAlgebra.hpp"
 #include "UserVariables.hpp" //This files needs NUM_VARS - total no. components
 #include "VarsTools.hpp"
 #include "simd.hpp"
@@ -100,6 +101,8 @@ class InitialConditions
         Tensor<1,double> Evec_spher_Im;
         Tensor<1,double> Evec_Re;
         Tensor<1,double> Evec_Im;
+        Tensor<1,double> Evec_Re_U;
+        Tensor<1,double> Evec_Im_U;
         FOR2(i,j){ g_spher[i][j] = 0; g[i][j] = 0;}
         FOR1(i){
                  Avec_spher_Re[i] = 0;
@@ -110,6 +113,8 @@ class InitialConditions
                  Evec_spher_Im[i] = 0;
                  Evec_Re[i] = 0;
                  Evec_Im[i] = 0;
+                 Evec_Re_U[i] = 0;
+                 Evec_Im_U[i] = 0;
                 }
         const double x = coords.x;
         const double y = coords.y;
@@ -160,8 +165,8 @@ class InitialConditions
         // r Component
         Avec_spher_Re[0] =  a1 * sin(m_omega * t);
         Avec_spher_Im[0] =  a1 * cos(m_omega * t);
-        Evec_spher_Re[0] =  sqrt(1.0 - 2.0 * m / rr )/sig * (-m_omega*a1 + da0dr) * cos(-m_omega * t);
-        Evec_spher_Im[0] =  sqrt(1.0 - 2.0 * m / rr )/sig * (-m_omega*a1 + da0dr) * sin(-m_omega * t);
+        Evec_spher_Re[0] =  1.0/(sqrt(1.0 - 2.0 * m / rr )*sig) * (-m_omega*a1 + da0dr) * cos(-m_omega * t);
+        Evec_spher_Im[0] =  1.0/(sqrt(1.0 - 2.0 * m / rr )*sig) * (-m_omega*a1 + da0dr) * sin(-m_omega * t);
 
         FOR2(i, j)
         {
@@ -169,12 +174,21 @@ class InitialConditions
             Avec_Im[i] += Avec_spher_Im[j] * jacobian[j][i];
             Evec_Re[i] += Evec_spher_Re[j] * jacobian[j][i];
             Evec_Im[i] += Evec_spher_Im[j] * jacobian[j][i];
+            Evec_Re_Ref[i] += Evec_spher_Re_Ref[j] * jacobian_inverse[j][i];
+            Evec_Im_Ref[i] += Evec_spher_Im_Ref[j] * jacobian_inverse[j][i];
             FOR2(k, l)
                     {
                         g[i][j] += g_spher[k][l] * jacobian[k][i] * jacobian[l][j];
                     }
         }
 
+        const auto g_UU = TensorAlgebra::compute_inverse(g);
+
+        FOR2(i, j)
+        {
+            Evec_Re_U[i] += Evec_Re[j] * g_UU[j][i];
+            Evec_Im_U[i] += Evec_Im[j] * g_UU[j][i];
+        }
          data_t deth = TensorAlgebra::compute_determinant<data_t>(g);
 
          data_t chi = pow(deth,-1.0/3.0);
@@ -203,13 +217,13 @@ class InitialConditions
         current_cell.store_vars(Avec_Im[1], c_Avec2_Im);
         current_cell.store_vars(Avec_Im[2], c_Avec3_Im);
 
-        current_cell.store_vars(Evec_Re[0], c_Evec1_Re);
-        current_cell.store_vars(Evec_Re[1], c_Evec2_Re);
-        current_cell.store_vars(Evec_Re[2], c_Evec3_Re);
+        current_cell.store_vars(Evec_Re_U[0], c_Evec1_Re);
+        current_cell.store_vars(Evec_Re_U[1], c_Evec2_Re);
+        current_cell.store_vars(Evec_Re_U[2], c_Evec3_Re);
 
-        current_cell.store_vars(Evec_Im[0], c_Evec1_Im);
-        current_cell.store_vars(Evec_Im[1], c_Evec2_Im);
-        current_cell.store_vars(Evec_Im[2], c_Evec3_Im);
+        current_cell.store_vars(Evec_Im_U[0], c_Evec1_Im);
+        current_cell.store_vars(Evec_Im_U[1], c_Evec2_Im);
+        current_cell.store_vars(Evec_Im_U[2], c_Evec3_Im);
 
         current_cell.store_vars(phi_Re, c_Avec0_Re);
         current_cell.store_vars(phi_Im, c_Avec0_Im);
