@@ -15,7 +15,7 @@ N3 = 32
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
-L = 16
+L = 32
 #center = 8.0 8.0 0.0
 
 # Level data
@@ -75,13 +75,13 @@ num_plot_vars = 4
 plot_vars = phi_Re Ham rho Proca
 dt_multiplier = 0.15
 stop_time = 0.0025
-G_Newton = 1.0
+G_Newton = 1
 
 # coefficient for KO numerical dissipation
 sigma = 1.0
 
 # PF Initial data
-proca_mass = 1.0
+proca_mass = 1
 proca_self_interaction = 0
 proca_damping = 0.1
 

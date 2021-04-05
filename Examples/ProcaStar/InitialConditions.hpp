@@ -134,7 +134,7 @@ class InitialConditions
         // sin(phi)
         double sinphi = y / rho;
 
-        const double norm = 1.0;
+        const double norm = 1.0/(8*M_PI);
         const double a0 = norm*linear_interpolation(m_a0,rr);
         const double da0dr = norm*linear_interpolation(m_da0dr,rr);
         const double a1 = norm*linear_interpolation(m_a1,rr);
@@ -203,12 +203,12 @@ class InitialConditions
         current_cell.store_vars(chi, c_chi);
         current_cell.store_vars(lapse, c_lapse);
 
-        current_cell.store_vars(g[0][0], c_h11);
-        current_cell.store_vars(g[0][1], c_h12);
-        current_cell.store_vars(g[0][2], c_h13);
-        current_cell.store_vars(g[1][1], c_h22);
-        current_cell.store_vars(g[1][2], c_h23);
-        current_cell.store_vars(g[2][2], c_h33);
+        current_cell.store_vars(g_conf[0][0], c_h11);
+        current_cell.store_vars(g_conf[0][1], c_h12);
+        current_cell.store_vars(g_conf[0][2], c_h13);
+        current_cell.store_vars(g_conf[1][1], c_h22);
+        current_cell.store_vars(g_conf[1][2], c_h23);
+        current_cell.store_vars(g_conf[2][2], c_h33);
 
         current_cell.store_vars(Avec_Re[0], c_Avec1_Re);
         current_cell.store_vars(Avec_Re[1], c_Avec2_Re);

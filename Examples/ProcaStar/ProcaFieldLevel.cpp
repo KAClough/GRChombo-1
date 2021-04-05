@@ -55,13 +55,6 @@ void ProcaFieldLevel::initialData()
     BoxLoops::loop(GammaCalculator(m_dx), m_state_new, m_state_new,
                    EXCLUDE_GHOST_CELLS);
 
-    fillAllGhosts();
-    ComplexProcaField proca_field(m_p.field_mu, m_p.proca_damping);
-    BoxLoops::loop(
-        ComplexProcaFieldConstraints<ComplexProcaField>(
-            proca_field, m_dx, m_p.field_mu, m_p.G_Newton),
-        m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
-
 }
 
 // Things to do after each timestep
