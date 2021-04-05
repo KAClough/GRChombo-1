@@ -134,7 +134,7 @@ class InitialConditions
         // sin(phi)
         double sinphi = y / rho;
 
-        const double norm = 1.0/sqrt(16.0*M_PI);
+        const double norm = 1.0;
         const double a0 = norm*linear_interpolation(m_a0,rr);
         const double da0dr = norm*linear_interpolation(m_da0dr,rr);
         const double a1 = norm*linear_interpolation(m_a1,rr);
@@ -160,8 +160,8 @@ class InitialConditions
         g_spher[2][2] = rr2 * pow(sintheta, 2);
 
         // set the field variable to approx profile
-        data_t phi_Re = - 1.0/lapse * a0 * cos(-m_omega*t);
-        data_t phi_Im = - 1.0/lapse * a0 * sin(-m_omega*t);
+        data_t phi_Re =  1.0/lapse * a0 * cos(m_omega*t);
+        data_t phi_Im =  1.0/lapse * a0 * sin(m_omega*t);
         // r Component
         Avec_spher_Re[0] =  a1 * sin(m_omega * t);
         Avec_spher_Im[0] =  a1 * cos(m_omega * t);
@@ -174,21 +174,22 @@ class InitialConditions
             Avec_Im[i] += Avec_spher_Im[j] * jacobian[j][i];
             Evec_Re[i] += Evec_spher_Re[j] * jacobian[j][i];
             Evec_Im[i] += Evec_spher_Im[j] * jacobian[j][i];
-            Evec_Re_Ref[i] += Evec_spher_Re_Ref[j] * jacobian_inverse[j][i];
-            Evec_Im_Ref[i] += Evec_spher_Im_Ref[j] * jacobian_inverse[j][i];
             FOR2(k, l)
                     {
                         g[i][j] += g_spher[k][l] * jacobian[k][i] * jacobian[l][j];
                     }
         }
 
-        const auto g_UU = TensorAlgebra::compute_inverse(g);
+         const auto g_UU = TensorAlgebra::compute_inverse(g);
 
-        FOR2(i, j)
-        {
+         // Raising the electric vector
+
+         FOR2(i, j)
+         {
             Evec_Re_U[i] += Evec_Re[j] * g_UU[j][i];
             Evec_Im_U[i] += Evec_Im[j] * g_UU[j][i];
-        }
+         }
+
          data_t deth = TensorAlgebra::compute_determinant<data_t>(g);
 
          data_t chi = pow(deth,-1.0/3.0);
