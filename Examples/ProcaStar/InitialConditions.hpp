@@ -160,8 +160,8 @@ class InitialConditions
         g_spher[2][2] = rr2 * pow(sintheta, 2);
 
         // set the field variable to approx profile
-        data_t phi_Re =  1.0/lapse * a0 * cos(m_omega*t);
-        data_t phi_Im =  1.0/lapse * a0 * sin(m_omega*t);
+        data_t phi_Re = - 1.0/lapse * a0 * cos(m_omega*t);
+        data_t phi_Im = - 1.0/lapse * a0 * sin(m_omega*t);
         // r Component
         Avec_spher_Re[0] =  a1 * sin(m_omega * t);
         Avec_spher_Im[0] =  a1 * cos(m_omega * t);
