@@ -37,19 +37,19 @@ void ComplexProcaFieldConstraints<matter_t>::compute(Cell<data_t> current_cell) 
     const auto emtensor = my_matter.compute_emtensor(vars, d1, h_UU, chris.ULL);
 
     // Hamiltonian constraint
-    data_t Proca = pow(m_vector_mass, 2.0) * vars.Avec0_Re;
+    data_t proca = pow(m_vector_mass, 2.0) * vars.Avec0_Re;
 
     FOR1(i)
     {
-        Proca +=  d1.Evec_Re[i][i];
+        proca +=  d1.Evec_Re[i][i];
         FOR1(j)
         {
-            Proca +=
+            proca +=
                 chris_phys[i][i][j] * vars.Evec_Re[j];
         }
     }
     // Write the constraints into the output FArrayBox
-     current_cell.store_vars(Proca, c_Proca);
+     current_cell.store_vars(proca, c_proca_Re);
 }
 
 #endif /* COMPLEXPROCAFIELDCONSTRAINTS_IMPL_HPP_ */

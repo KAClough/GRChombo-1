@@ -98,7 +98,7 @@ class SimulationParameters : public SimulationParametersBase
         dx.fill(coarsest_dx);
         origin.fill(coarsest_dx / 2.0);
 
-        std::string folder = "BosonStar/example/vector_field_star_self_interacting/Lambda_0/Dim_4/f0_0.165/cA4_0.0/";
+        std::string folder = "vector_field_star_self_interacting/Lambda_0/Dim_4/f0_0.165/cA4_0.0/";
         std::string filename_a0 = "a0.dat";
         std::string filename_da0dr = "da0dr.dat";
         std::string filename_a1 = "a1.dat";

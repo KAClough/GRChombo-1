@@ -134,7 +134,7 @@ class InitialConditions
         // sin(phi)
         double sinphi = y / rho;
 
-        const double norm = 1.0/(8*M_PI);
+        const double norm = 1.0/sqrt(16*M_PI);
         const double a0 = norm*linear_interpolation(m_a0,rr);
         const double da0dr = norm*linear_interpolation(m_da0dr,rr);
         const double a1 = norm*linear_interpolation(m_a1,rr);
