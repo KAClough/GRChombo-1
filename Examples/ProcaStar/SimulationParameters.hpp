@@ -123,6 +123,9 @@ class SimulationParameters : public SimulationParametersBase
         read_file(rvals,path_rvals);
         read_number(initalcondition_data.omega,path_omega);
 
+        pp.load("centerProca1", initalcondition_data.center1);
+        pp.load("centerProca2", initalcondition_data.center2);
+
         initalcondition_data.spacing = rvals[1] - rvals[0];
 
         // Extraction params

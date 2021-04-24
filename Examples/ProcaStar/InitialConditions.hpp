@@ -29,7 +29,8 @@ class InitialConditions
     const std::vector<double> m_a1;
     const std::vector<double> m_m;
     const std::vector<double> m_sig;
-    const std::array<double, CH_SPACEDIM> m_center;
+    const std::array<double, CH_SPACEDIM> m_center1;
+    const std::array<double, CH_SPACEDIM> m_center2;
 
     // Now the non grid ADM vars
     template <class data_t> using MetricVars = ADMFixedBGVars::Vars<data_t>;
@@ -47,6 +48,8 @@ class InitialConditions
         std::vector<double> sig;
         double omega;
         double spacing;
+    	std::array<double, CH_SPACEDIM> center1;
+    	std::array<double, CH_SPACEDIM> center2;
     };
     
     struct proca_star_struct {
@@ -61,20 +64,18 @@ class InitialConditions
     };
 
     //! The constructor for the class
-    InitialConditions(
-                      const std::array<double, CH_SPACEDIM> a_center,
-                      const double a_dx,
+    InitialConditions(const double a_dx,
                       params_t initalcondition_data
                       )
-        : m_dx(a_dx), m_center(a_center), m_a0(initalcondition_data.a0),
-        m_da0dr(initalcondition_data.da0dr),m_a1(initalcondition_data.a1),
+        : m_dx(a_dx), m_center1(initalcondition_data.center1),  m_center2(initalcondition_data.center2),
+	m_a0(initalcondition_data.a0), m_da0dr(initalcondition_data.da0dr), m_a1(initalcondition_data.a1),
         m_m(initalcondition_data.m),m_sig(initalcondition_data.sig),
         m_spacing(initalcondition_data.spacing),m_omega(initalcondition_data.omega)
     {
     }
 
 
-     double linear_interpolation(const  std::vector<double> vector, const double rr) const {
+     double linear_interpolation(const std::vector<double> vector, const double rr) const {
         const int indxL = static_cast<int>(floor(rr / m_spacing));
         const int indxH = static_cast<int>(ceil(rr / m_spacing));
         const int ind_max = vector.size();
@@ -208,24 +209,49 @@ class InitialConditions
         VarsTools::assign(vars, 0.);
         Tensor<2,double> g_conf; // Metric Index low low
 
-        Coordinates<data_t> coords(current_cell, m_dx, m_center);
-        const double x = coords.x;
-        const double y = coords.y;
-        const double z = coords.z;
-        const double t = 0;
+        Coordinates<data_t> coords1(current_cell, m_dx, m_center1);
+        const double x1 = coords1.x;
+        const double y1 = coords1.y;
+        const double z1 = coords1.z;
+        const double t1 = 0;
 
-	proca_star_struct star;
-	get_proca_star_values<data_t>(x,y,z,t,star);
+	proca_star_struct star1;
+	get_proca_star_values<data_t>(x1,y1,z1,t1,star1);
 
-	double lapse = star.lapse;
-	double phi_Re = star.phi_Re;
-	double phi_Im = star.phi_Im;
-        Tensor<2,double> g = star.g; // Metric Index low low
-        Tensor<1,double> Avec_Re = star.Avec_Re;
-        Tensor<1,double> Avec_Im = star.Avec_Im;
-        Tensor<1,double> Evec_Re_U = star.Evec_Re_U;
-        Tensor<1,double> Evec_Im_U = star.Evec_Im_U;
+        Coordinates<data_t> coords2(current_cell, m_dx, m_center2);
+        const double x2 = coords2.x;
+        const double y2 = coords2.y;
+        const double z2 = coords2.z;
+        const double t2 = 0;
 
+	proca_star_struct star2;
+	get_proca_star_values<data_t>(x2,y2,z2,t2,star2);
+
+
+        Tensor<1,double> Avec_Re;
+        Tensor<1,double> Avec_Im;
+        Tensor<1,double> Evec_Re_U;
+        Tensor<1,double> Evec_Im_U;
+        Tensor<2,double> g; // Metric Index low low
+	Tensor<2,double> h;
+
+	FOR2(i,j){
+		h[i][j] = 0 ; 
+	}
+	FOR1(i) h[i][i] = 1;
+
+	double lapse = star1.lapse + star2.lapse - 1.0 ;
+	double phi_Re = star1.phi_Re + star2.phi_Re;
+	double phi_Im = star1.phi_Im + star2.phi_Im;
+	FOR1(i){
+        	Avec_Re[i] = star1.Avec_Re[i] + star2.Avec_Re[i];
+        	Avec_Im[i] = star1.Avec_Im[i] + star2.Avec_Re[i];
+        	Evec_Re_U[i] = star1.Evec_Re_U[i] + star2.Evec_Re_U[i];
+        	Evec_Im_U[i] = star1.Evec_Im_U[i] + star2.Evec_Im_U[i];
+		FOR1(j){
+        		g[i][j] = star1.g[i][j] + star2.g[i][j] - h[i][j]; // Metric Index low low
+		}
+	 }
 
          data_t deth = TensorAlgebra::compute_determinant<data_t>(g);
 

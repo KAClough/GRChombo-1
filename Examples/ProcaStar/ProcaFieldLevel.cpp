@@ -46,8 +46,7 @@ void ProcaFieldLevel::initialData()
 
     // Set the ICs
 
-    InitialConditions set_field( m_p.center,
-                               m_dx , m_p.initalcondition_data);
+    InitialConditions set_field( m_dx , m_p.initalcondition_data);
 
     BoxLoops::loop( make_compute_pack(SetValue(0.), set_field), m_state_new, m_state_new, FILL_GHOST_CELLS,disable_simd());
 

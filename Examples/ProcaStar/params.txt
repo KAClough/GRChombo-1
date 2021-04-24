@@ -11,7 +11,7 @@ write_plot_ghosts = 0
 # NB - the N values need to be multiples of block_factor
 N1 = 64
 N2 = 64
-N3 = 32
+N3 = 64
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
@@ -20,9 +20,9 @@ L = 32
 
 # Level data
 # Maximum number of times you can regrid above coarsest level
-max_level = 0 # There are (max_level+1) grids, so min is zero
+max_level = 1 # There are (max_level+1) grids, so min is zero
 threshold_K = 0.01
-threshold_phi = 0.0005
+threshold_phi = 0.01
 # Frequency of regridding at each level
 # Need one for each level, ie max_level+1 items
 # Generally you do not need to regrid frequently on every level
@@ -38,11 +38,15 @@ tag_buffer_size = 0
 #Periodic directions - 0 = false, 1 = true
 isPeriodic = 0 0 0
 
+# Proca star positions
+centerProca1 = -15 0 0 
+centerProca2 = 15 0 0 
+
 # if not periodic, then specify the boundary type
 # 0 = static, 1 = sommerfeld, 2 = reflective, 3 = extrapolating
 # (see BoundaryConditions.hpp for details)
 hi_boundary = 0 0 0
-lo_boundary = 0 0 2
+lo_boundary = 2 2 2
 
 # if reflective boundaries selected, must set
 # parity of all vars (in order given by UserVariables.hpp)
