@@ -48,7 +48,17 @@ class InitialConditions
         double omega;
         double spacing;
     };
-
+    
+    struct proca_star_struct {
+	double lapse;
+	double phi_Re;
+	double phi_Im;
+        Tensor<2,double> g; // Metric Index low low
+        Tensor<1,double> Avec_Re;
+        Tensor<1,double> Avec_Im;
+        Tensor<1,double> Evec_Re_U;
+        Tensor<1,double> Evec_Im_U;
+    };
 
     //! The constructor for the class
     InitialConditions(
@@ -80,19 +90,13 @@ class InitialConditions
             return vector[ind_max-1];
         }
     }
+    
 
-    //! Function to compute the value of all the initial vars on the grid
-    template <class data_t> void compute(Cell<data_t> current_cell) const
-    {
-        // where am i?
-        Coordinates<data_t> coords(current_cell, m_dx, m_center);
-        Vars<data_t> vars;
-        VarsTools::assign(vars, 0.);
+    template <class data_t> void get_proca_star_values( const double x, const double y, const double z, const double t,  proca_star_struct &proca_star_values ) const {
 
-        Tensor<2,double> g; // Metix Index low low
-        Tensor<2,double> g_conf; // Metix Index low low
-        Tensor<2,double> g_spher; // Metix Index low low
-        Tensor<2,double> jacobian; // Metix Index low low
+        Tensor<2,double> g; // Metric Index low low
+        Tensor<2,double> g_spher; // Metric Index low low
+        Tensor<2,double> jacobian; // Metric Index low low
         Tensor<1,double> Avec_spher_Re;
         Tensor<1,double> Avec_spher_Im;
         Tensor<1,double> Avec_Re;
@@ -116,12 +120,8 @@ class InitialConditions
                  Evec_Re_U[i] = 0;
                  Evec_Im_U[i] = 0;
                 }
-        const double x = coords.x;
-        const double y = coords.y;
-        const double z = coords.z;
-        const double t = 0;
 
-        const double rr = coords.get_radius();
+        const double rr = sqrt(x*x+y*y+z*z);
         const double rr2 = rr*rr;
         double rho2 = pow(x, 2) + pow(y, 2);
 
@@ -160,8 +160,8 @@ class InitialConditions
         g_spher[2][2] = rr2 * pow(sintheta, 2);
 
         // set the field variable to approx profile
-        data_t phi_Re = - 1.0/lapse * a0 * cos(m_omega*t);
-        data_t phi_Im = - 1.0/lapse * a0 * sin(m_omega*t);
+        double phi_Re = - 1.0/lapse * a0 * cos(m_omega*t);
+        double phi_Im = - 1.0/lapse * a0 * sin(m_omega*t);
         // r Component
         Avec_spher_Re[0] =  a1 * sin(m_omega * t);
         Avec_spher_Im[0] =  a1 * cos(m_omega * t);
@@ -189,6 +189,43 @@ class InitialConditions
             Evec_Re_U[i] += Evec_Re[j] * g_UU[j][i];
             Evec_Im_U[i] += Evec_Im[j] * g_UU[j][i];
          }
+	proca_star_values.phi_Re = phi_Re;
+	proca_star_values.phi_Im = phi_Im;
+	proca_star_values.lapse = lapse;
+	proca_star_values.g = g; // Metric Index low low
+        proca_star_values.Avec_Re = Avec_Re ;
+        proca_star_values.Avec_Im = Avec_Im;
+        proca_star_values.Evec_Re_U = Evec_Re_U;
+        proca_star_values.Evec_Im_U = Evec_Im_U;
+    }
+ 
+
+    //! Function to compute the value of all the initial vars on the grid
+    template <class data_t> void compute(Cell<data_t> current_cell) const
+    {
+        // where am i?
+        Vars<data_t> vars;
+        VarsTools::assign(vars, 0.);
+        Tensor<2,double> g_conf; // Metric Index low low
+
+        Coordinates<data_t> coords(current_cell, m_dx, m_center);
+        const double x = coords.x;
+        const double y = coords.y;
+        const double z = coords.z;
+        const double t = 0;
+
+	proca_star_struct star;
+	get_proca_star_values<data_t>(x,y,z,t,star);
+
+	double lapse = star.lapse;
+	double phi_Re = star.phi_Re;
+	double phi_Im = star.phi_Im;
+        Tensor<2,double> g = star.g; // Metric Index low low
+        Tensor<1,double> Avec_Re = star.Avec_Re;
+        Tensor<1,double> Avec_Im = star.Avec_Im;
+        Tensor<1,double> Evec_Re_U = star.Evec_Re_U;
+        Tensor<1,double> Evec_Im_U = star.Evec_Im_U;
+
 
          data_t deth = TensorAlgebra::compute_determinant<data_t>(g);
 
@@ -228,7 +265,6 @@ class InitialConditions
 
         current_cell.store_vars(phi_Re, c_Avec0_Re);
         current_cell.store_vars(phi_Im, c_Avec0_Im);
-
     }
 };
 
