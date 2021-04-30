@@ -209,6 +209,7 @@ class InitialConditions
         VarsTools::assign(vars, 0.);
         Tensor<2,double> g_conf; // Metric Index low low
 
+	// Get first star data 
         Coordinates<data_t> coords1(current_cell, m_dx, m_center1);
         const double x1 = coords1.x;
         const double y1 = coords1.y;
@@ -218,6 +219,7 @@ class InitialConditions
 	proca_star_struct star1;
 	get_proca_star_values<data_t>(x1,y1,z1,t1,star1);
 
+	// Get second star data 
         Coordinates<data_t> coords2(current_cell, m_dx, m_center2);
         const double x2 = coords2.x;
         const double y2 = coords2.y;
@@ -227,7 +229,16 @@ class InitialConditions
 	proca_star_struct star2;
 	get_proca_star_values<data_t>(x2,y2,z2,t2,star2);
 
+	// Get corrections 
+        const double x_corr = m_center1[0] - m_center2[0];
+        const double y_corr = m_center1[1] - m_center2[1];
+        const double z_corr = m_center1[2] - m_center2[2];
+        const double t_corr = 0;
 
+	proca_star_struct corr;
+	get_proca_star_values<data_t>(x_corr,y_corr,z_corr,t_corr,corr);
+
+	// Superpose two stars 	
         Tensor<1,double> Avec_Re;
         Tensor<1,double> Avec_Im;
         Tensor<1,double> Evec_Re_U;
@@ -235,10 +246,11 @@ class InitialConditions
         Tensor<2,double> g; // Metric Index low low
 	Tensor<2,double> h;
 
-	FOR2(i,j){
-		h[i][j] = 0 ; 
-	}
-	FOR1(i) h[i][i] = 1;
+	FOR2(i,j) h[i][j] = corr.g[i][j]; 
+	//FOR2(i,j){
+	//	h[i][j] = 0 ; 
+	//}
+	//FOR1(i) h[i][i] = 1;
 
 	double lapse = star1.lapse + star2.lapse - 1.0 ;
 	double phi_Re = star1.phi_Re + star2.phi_Re;
@@ -249,7 +261,7 @@ class InitialConditions
         	Evec_Re_U[i] = star1.Evec_Re_U[i] + star2.Evec_Re_U[i];
         	Evec_Im_U[i] = star1.Evec_Im_U[i] + star2.Evec_Im_U[i];
 		FOR1(j){
-        		g[i][j] = star1.g[i][j] + star2.g[i][j] - h[i][j]; // Metric Index low low
+        		g[i][j] = star1.g[i][j]  + star2.g[i][j] - h[i][j]; // Metric Index low low
 		}
 	 }
 
