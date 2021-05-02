@@ -246,7 +246,9 @@ class InitialConditions
         Tensor<2,double> g; // Metric Index low low
 	Tensor<2,double> h;
 
+	// Secret sauce fix 
 	FOR2(i,j) h[i][j] = corr.g[i][j]; 
+
 	//FOR2(i,j){
 	//	h[i][j] = 0 ; 
 	//}

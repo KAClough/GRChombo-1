@@ -13,6 +13,10 @@ enum
 
     c_Mom,
 
+    c_Weyl4_Re,
+
+    c_Weyl4_Im,
+
     c_rho,
 
     c_proca_Re,
@@ -25,6 +29,8 @@ namespace DiagnosticVariables
 static const std::array<std::string, NUM_DIAGNOSTIC_VARS> variable_names = {
     "Ham",
     "Mom",
+    "Weyl4_Re", 
+    "Weyl4_Im",
     "rho",
     "proca_Re"
     };

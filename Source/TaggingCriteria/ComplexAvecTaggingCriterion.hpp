@@ -18,12 +18,16 @@ class ComplexAvecTaggingCriterion
     const FourthOrderDerivatives m_deriv;
     const double m_threshold_phi;
     const double m_threshold_K;
-
+    const int m_max_matter_level;
+    const int m_level;
+	
   public:
     ComplexAvecTaggingCriterion(double dx, double threshold_phi,
-                               double threshold_K)
+			       double threshold_K, int a_level, 
+			       int max_matter_level = 99999 )
         : m_dx(dx), m_deriv(dx), m_threshold_phi(threshold_phi),
-          m_threshold_K(threshold_K){};
+          m_threshold_K(threshold_K), m_level(a_level), 
+	  m_max_matter_level(max_matter_level)  {};
 
     template <class data_t> void compute(Cell<data_t> current_cell) const
     {
@@ -40,8 +44,10 @@ class ComplexAvecTaggingCriterion
         data_t mod_d1_K = 0;
         FOR1(idir)
         {
+	    if(m_level < m_max_matter_level){
             mod_d1_phi += d1_phi_re[idir] * d1_phi_re[idir] +
                           d1_phi_im[idir] * d1_phi_im[idir];
+	    } 
             mod_d1_K += d1_K[idir] * d1_K[idir];
         }
 
