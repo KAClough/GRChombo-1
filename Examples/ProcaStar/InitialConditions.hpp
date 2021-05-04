@@ -230,10 +230,11 @@ class InitialConditions
 	get_proca_star_values<data_t>(x2,y2,z2,t2,star2);
 
 	// Get corrections 
-        const double x_corr = m_center1[0] - m_center2[0];
-        const double y_corr = m_center1[1] - m_center2[1];
-        const double z_corr = m_center1[2] - m_center2[2];
+        const double x_corr = abs(m_center1[0] - m_center2[0]);
+        const double y_corr = abs(m_center1[1] - m_center2[1]);
+        const double z_corr = abs(m_center1[2] - m_center2[2]);
         const double t_corr = 0;
+
 
 	proca_star_struct corr;
 	get_proca_star_values<data_t>(x_corr,y_corr,z_corr,t_corr,corr);
@@ -249,11 +250,11 @@ class InitialConditions
 	// Secret sauce fix 
 	FOR2(i,j) h[i][j] = corr.g[i][j]; 
 
-	//FOR2(i,j){
-	//	h[i][j] = 0 ; 
-	//}
-	//FOR1(i) h[i][i] = 1;
-
+	/*FOR2(i,j){
+		h[i][j] = 0 ; 
+	}
+	FOR1(i) h[i][i] = 1;
+	*/
 	double lapse = star1.lapse + star2.lapse - 1.0 ;
 	double phi_Re = star1.phi_Re + star2.phi_Re;
 	double phi_Im = star1.phi_Im + star2.phi_Im;

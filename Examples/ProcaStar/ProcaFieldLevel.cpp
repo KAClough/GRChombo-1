@@ -142,6 +142,6 @@ void ProcaFieldLevel::computeTaggingCriterion(FArrayBox &tagging_criterion,
 {
     const double radius_bh = 1.75;
     BoxLoops::loop(ComplexAvecTaggingCriterion(m_dx,
-		    m_p.threshold_phi,m_p.threshold_K, m_level,m_p.matter_max_level),
+		    m_p.threshold_phi,m_p.threshold_K, m_level,m_p.matter_max_level,m_p.extraction_params,m_p.activate_extraction  ),
                    current_state, tagging_criterion, disable_simd());
 }

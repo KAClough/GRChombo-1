@@ -20,7 +20,7 @@ L = 192
 
 # Level data
 # Maximum number of times you can regrid above coarsest level
-max_level = 7 # There are (max_level+1) grids, so min is zero
+max_level =  7 # There are (max_level+1) grids, so min is zero
 threshold_K = 0.01
 threshold_phi = 0.00025
 matter_max_level = 4
@@ -40,8 +40,8 @@ tag_buffer_size = 0
 isPeriodic = 0 0 0
 
 # Proca star positions
-centerProca1 = 20 0 0 
-centerProca2 = -20 0 0 
+centerProca1 = 1e-16 0 20 
+centerProca2 = 1e-15 0 -20
 
 # if not periodic, then specify the boundary type
 # 0 = static, 1 = sommerfeld, 2 = reflective, 3 = extrapolating
@@ -77,7 +77,7 @@ nonzero_asymptotic_values = 0.0
 checkpoint_interval = 50
 plot_interval = 1
 num_plot_vars = 4
-plot_vars = phi_Re Ham rho proca_Re
+plot_vars = phi_Re Ham rho Weyl4_Re
 dt_multiplier = 0.15
 stop_time = 1000
 G_Newton = 1
