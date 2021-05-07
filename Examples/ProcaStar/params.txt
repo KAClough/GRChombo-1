@@ -4,18 +4,18 @@ verbosity = 0
 integral_filename = ProcaDensities
 chk_prefix = Complexmu0.5A0.01c1000.0_chk
 plot_prefix = Complexmu0.5A0.01c1000.0_plt
-#restart_file = /cosma6/data/dp174/dc-cui1/Proca/Realmu0.5A0.01c1000.0_chk000080.3d.hdf5
+#restart_file = Complexmu0.5A0.01c1000.0_chk000950.3d.hdf5
 write_plot_ghosts = 0
 
 # Set up grid spacings and regrid params
 # NB - the N values need to be multiples of block_factor
-N1 = 64
-N2 = 64
-N3 = 64
+N1 = 96
+N2 = 96
+N3 = 96
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
-L = 192
+L = 288
 #center = 8.0 8.0 0.0
 
 # Level data
@@ -30,9 +30,9 @@ matter_max_level = 4
 regrid_interval = 1 0 0 0 0 0 0 0 0 0
 
 # Max box size
-max_grid_size = 16
+max_grid_size = 32
 # Min box size
-block_factor = 16
+block_factor = 32
 tag_buffer_size = 0
 
 #boundaries and periodicity of grid
