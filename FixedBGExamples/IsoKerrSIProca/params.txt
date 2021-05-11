@@ -49,7 +49,7 @@ lo_boundary = 1 1 2
 # 4,5,6 = odd xy, yz, xz
 vars_parity            = 0 1 2 3    #phi Avec
                          1 2 3 0      #Evec Z
-vars_parity_diagnostic = 0 0 0 0 0 0   #rho rhoJ etc
+vars_parity_diagnostic = 0 0 0 0 0 0 0   #rho rhoJ etc
 
 # if sommerfeld boundaries selected, must specify any
 # nonzero asymptotic values
@@ -73,7 +73,7 @@ sigma = 1.0
 
 # PF Initial data
 proca_mass = 0.5
-proca_self_interaction = 0.0
+proca_self_interaction = 12.0
 proca_damping = 1.0
 field_amplitude = 0.1
 

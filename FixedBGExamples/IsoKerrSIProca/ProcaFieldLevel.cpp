@@ -18,6 +18,7 @@
 // Problem specific includes
 #include "ExcisionProcaDiagnostics.hpp"
 #include "ExcisionProcaEvolution.hpp"
+#include "FixedBGProcaConstraint.hpp"
 #include "FixedBGDensityAndAngularMom.hpp"
 #include "FixedBGEnergyAndAngularMomFlux.hpp"
 #include "FixedBGEvolution.hpp"
@@ -123,7 +124,15 @@ void ProcaFieldLevel::specificPostTimeStep()
 }
 
 // Things to do before outputting a plot file
-void ProcaFieldLevel::prePlotLevel() {}
+void ProcaFieldLevel::prePlotLevel() {
+	
+	Potential potential(m_p.potential_params);
+	ProcaField proca_field(potential, m_p.proca_damping);
+	IsotropicKerrFixedBG kerr_bh(m_p.bg_params, m_dx);
+	FixedBGProcaConstraint<Potential,IsotropicKerrFixedBG> contraint(kerr_bh,m_dx,1,1,potential);
+	BoxLoops::loop(contraint,
+                   m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS, disable_simd());
+}
 
 // Things to do in RHS update, at each RK4 step
 void ProcaFieldLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
