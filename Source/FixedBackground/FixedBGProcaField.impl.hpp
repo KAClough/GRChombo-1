@@ -20,6 +20,11 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
 {
     emtensor_t<data_t> out;
 
+    data_t rho_potential = 0;
+    Tensor<1, data_t> Si_potential;
+    Tensor<2, data_t> Sij_potential;
+    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars);
+
     // Some useful quantities
     const double msquared = pow(m_potential.m_params.mass, 2.0);
 

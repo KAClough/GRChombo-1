@@ -31,6 +31,51 @@ class Potential
     //! The constructor
     Potential(params_t a_params) : m_params(a_params) {}
 
+
+    //! Set the potential function for the proca field here
+    template <class data_t, template <typename> class vars_t>
+    void compute_stress_energy(data_t &rho_potential, 
+			   Tensor<1, data_t> &Si_potential,
+			   Tensor<2, data_t> &Sij_potential,
+                           const vars_t<data_t> &vars,
+                           const vars_t<Tensor<1, data_t>> &d1,
+			   const Tensor<2, data_t> &gamma_UU,
+                           const MetricVars<data_t> &metric_vars) const
+    {
+	
+    	const double msquared = pow(m_params.mass, 2.0);
+    	
+	rho_potential = 0.5 * msquared * (vars.phi * vars.phi);
+    	FOR2(i, j)
+    	{
+        	rho_potential +=
+            	0.5 * gamma_UU[i][j] * msquared * vars.Avec[i] * vars.Avec[j];
+    	}
+
+
+    	FOR1(i)
+    	{
+        	Si_potential[i] = msquared * vars.phi * vars.Avec[i];
+
+    	}
+
+	
+    	FOR2(i, j)
+    	{
+        	Sij_potential[i][j] =
+            	msquared * (vars.Avec[i] * vars.Avec[j] +
+                        0.5 * metric_vars.gamma[i][j] * vars.phi * vars.phi);
+
+        	FOR2(k, l)
+        	{
+            		Sij_potential[i][j] += - 0.5 * gamma_UU[k][l] * metric_vars.gamma[i][j] *
+                                 msquared * vars.Avec[k] * vars.Avec[l];
+        	}
+    	}
+
+	
+    }
+
     //! Set the potential function for the proca field here
     template <class data_t, template <typename> class vars_t>
     void compute_potential(data_t &dVdA, data_t &dphidt,
