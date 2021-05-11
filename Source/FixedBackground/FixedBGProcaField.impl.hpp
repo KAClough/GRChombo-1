@@ -20,13 +20,13 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
 {
     emtensor_t<data_t> out;
 
+    // Getting all terms associated with the potential
     data_t rho_potential = 0;
     Tensor<1, data_t> Si_potential;
     Tensor<2, data_t> Sij_potential;
     m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars);
 
     // Some useful quantities
-    const double msquared = pow(m_potential.m_params.mass, 2.0);
 
     // D_i A_j
     Tensor<2, data_t> DA;
@@ -44,9 +44,7 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
     // S_ij = T_ij
     FOR2(i, j)
     {
-        out.Sij[i][j] =
-            msquared * (vars.Avec[i] * vars.Avec[j] +
-                        0.5 * metric_vars.gamma[i][j] * vars.phi * vars.phi);
+        out.Sij[i][j] = Sij_potential[i][j];
 
         FOR2(k, l)
         {
@@ -55,9 +53,7 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
                                  vars.Evec[k] * vars.Evec[l] +
                              0.5 * metric_vars.gamma[k][l] *
                                  metric_vars.gamma[i][j] * vars.Evec[k] *
-                                 vars.Evec[l] -
-                             0.5 * gamma_UU[k][l] * metric_vars.gamma[i][j] *
-                                 msquared * vars.Avec[k] * vars.Avec[l];
+                                 vars.Evec[l] ;
             FOR2(m, n)
             {
                 out.Sij[i][j] += -0.5 * metric_vars.gamma[i][j] *
@@ -74,19 +70,17 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
     // S_i (note lower index) = n^a T_a0
     FOR1(i)
     {
-        out.Si[i] = msquared * vars.phi * vars.Avec[i];
+        out.Si[i] = Si_potential[i];
 
         FOR1(j) { out.Si[i] += vars.Evec[j] * diff_DA[i][j]; }
     }
 
     // rho = n^a n^b T_ab
-    out.rho = 0.5 * msquared * (vars.phi * vars.phi);
+    out.rho = rho_potential;
     FOR2(i, j)
     {
         out.rho +=
-            0.5 * metric_vars.gamma[i][j] * vars.Evec[i] * vars.Evec[j] +
-            0.5 * gamma_UU[i][j] * msquared * vars.Avec[i] * vars.Avec[j];
-
+            0.5 * metric_vars.gamma[i][j] * vars.Evec[i] * vars.Evec[j];
         FOR2(k, l)
         {
             out.rho += 0.5 * gamma_UU[i][k] * gamma_UU[j][l] * DA[k][l] *
