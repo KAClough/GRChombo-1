@@ -123,8 +123,11 @@ class SimulationParameters : public SimulationParametersBase
         read_file(rvals,path_rvals);
         read_number(initalcondition_data.omega,path_omega);
 
-        initalcondition_data.spacing = rvals[1] - rvals[0];
+        pp.load("centerProca1", initalcondition_data.center1);
+        pp.load("centerProca2", initalcondition_data.center2);
 
+        initalcondition_data.spacing = rvals[1] - rvals[0];
+/*
         // Extraction params
         pp.load("num_extraction_radii", extraction_params.num_extraction_radii,
                 1);
@@ -158,9 +161,13 @@ class SimulationParameters : public SimulationParametersBase
             pout() << "Parameter: num_points_t incompatible with Simpson's "
                    << "rule so increased by 1.\n";
         }
-        pp.load("extraction_center", extraction_params.center, center);
+*/
+	pp.load("activate_extraction", activate_extraction, false);
+	pp.load("matter_max_level", matter_max_level, 99999);
+/*        pp.load("extraction_center", extraction_params.center, center);
         pp.load("zaxis_over_xaxis", extraction_params.zaxis_over_xaxis, 1.0);
         pp.load("write_extraction", extraction_params.write_extraction, false);
+*/
     }
 
     // Problem specific parameters
@@ -172,14 +179,16 @@ class SimulationParameters : public SimulationParametersBase
         dx; // location of coarsest origin and dx
     std::vector<double> rvals;
     InitialConditions::params_t initalcondition_data;
+    bool activate_extraction;
     double G_Newton;
     double spacing;
     double omega;
+    int matter_max_level;
     std::string integral_filename;
     // Collection of parameters necessary for the sims
     KerrSchildFixedBG::params_t bg_params;
     Potential::params_t potential_params;
-    SpheroidalExtraction::params_t extraction_params;
+//    SpheroidalExtraction::params_t extraction_params;
 };
 
 #endif /* SIMULATIONPARAMETERS_HPP_ */

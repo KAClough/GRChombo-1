@@ -29,7 +29,8 @@ class InitialConditions
     const std::vector<double> m_a1;
     const std::vector<double> m_m;
     const std::vector<double> m_sig;
-    const std::array<double, CH_SPACEDIM> m_center;
+    const std::array<double, CH_SPACEDIM> m_center1;
+    const std::array<double, CH_SPACEDIM> m_center2;
 
     // Now the non grid ADM vars
     template <class data_t> using MetricVars = ADMFixedBGVars::Vars<data_t>;
@@ -47,24 +48,34 @@ class InitialConditions
         std::vector<double> sig;
         double omega;
         double spacing;
+    	std::array<double, CH_SPACEDIM> center1;
+    	std::array<double, CH_SPACEDIM> center2;
+    };
+    
+    struct proca_star_struct {
+	double lapse;
+	double phi_Re;
+	double phi_Im;
+        Tensor<2,double> g; // Metric Index low low
+        Tensor<1,double> Avec_Re;
+        Tensor<1,double> Avec_Im;
+        Tensor<1,double> Evec_Re_U;
+        Tensor<1,double> Evec_Im_U;
     };
 
-
     //! The constructor for the class
-    InitialConditions(
-                      const std::array<double, CH_SPACEDIM> a_center,
-                      const double a_dx,
+    InitialConditions(const double a_dx,
                       params_t initalcondition_data
                       )
-        : m_dx(a_dx), m_center(a_center), m_a0(initalcondition_data.a0),
-        m_da0dr(initalcondition_data.da0dr),m_a1(initalcondition_data.a1),
+        : m_dx(a_dx), m_center1(initalcondition_data.center1),  m_center2(initalcondition_data.center2),
+	m_a0(initalcondition_data.a0), m_da0dr(initalcondition_data.da0dr), m_a1(initalcondition_data.a1),
         m_m(initalcondition_data.m),m_sig(initalcondition_data.sig),
         m_spacing(initalcondition_data.spacing),m_omega(initalcondition_data.omega)
     {
     }
 
 
-     double linear_interpolation(const  std::vector<double> vector, const double rr) const {
+     double linear_interpolation(const std::vector<double> vector, const double rr) const {
         const int indxL = static_cast<int>(floor(rr / m_spacing));
         const int indxH = static_cast<int>(ceil(rr / m_spacing));
         const int ind_max = vector.size();
@@ -80,19 +91,13 @@ class InitialConditions
             return vector[ind_max-1];
         }
     }
+    
 
-    //! Function to compute the value of all the initial vars on the grid
-    template <class data_t> void compute(Cell<data_t> current_cell) const
-    {
-        // where am i?
-        Coordinates<data_t> coords(current_cell, m_dx, m_center);
-        Vars<data_t> vars;
-        VarsTools::assign(vars, 0.);
+    template <class data_t> void get_proca_star_values( const double x, const double y, const double z, const double t,  proca_star_struct &proca_star_values ) const {
 
-        Tensor<2,double> g; // Metix Index low low
-        Tensor<2,double> g_conf; // Metix Index low low
-        Tensor<2,double> g_spher; // Metix Index low low
-        Tensor<2,double> jacobian; // Metix Index low low
+        Tensor<2,double> g; // Metric Index low low
+        Tensor<2,double> g_spher; // Metric Index low low
+        Tensor<2,double> jacobian; // Metric Index low low
         Tensor<1,double> Avec_spher_Re;
         Tensor<1,double> Avec_spher_Im;
         Tensor<1,double> Avec_Re;
@@ -116,12 +121,8 @@ class InitialConditions
                  Evec_Re_U[i] = 0;
                  Evec_Im_U[i] = 0;
                 }
-        const double x = coords.x;
-        const double y = coords.y;
-        const double z = coords.z;
-        const double t = 0;
 
-        const double rr = coords.get_radius();
+        const double rr = sqrt(x*x+y*y+z*z);
         const double rr2 = rr*rr;
         double rho2 = pow(x, 2) + pow(y, 2);
 
@@ -160,8 +161,8 @@ class InitialConditions
         g_spher[2][2] = rr2 * pow(sintheta, 2);
 
         // set the field variable to approx profile
-        data_t phi_Re = - 1.0/lapse * a0 * cos(m_omega*t);
-        data_t phi_Im = - 1.0/lapse * a0 * sin(m_omega*t);
+        double phi_Re = - 1.0/lapse * a0 * cos(m_omega*t);
+        double phi_Im = - 1.0/lapse * a0 * sin(m_omega*t);
         // r Component
         Avec_spher_Re[0] =  a1 * sin(m_omega * t);
         Avec_spher_Im[0] =  a1 * cos(m_omega * t);
@@ -189,6 +190,83 @@ class InitialConditions
             Evec_Re_U[i] += Evec_Re[j] * g_UU[j][i];
             Evec_Im_U[i] += Evec_Im[j] * g_UU[j][i];
          }
+	proca_star_values.phi_Re = phi_Re;
+	proca_star_values.phi_Im = phi_Im;
+	proca_star_values.lapse = lapse;
+	proca_star_values.g = g; // Metric Index low low
+        proca_star_values.Avec_Re = Avec_Re ;
+        proca_star_values.Avec_Im = Avec_Im;
+        proca_star_values.Evec_Re_U = Evec_Re_U;
+        proca_star_values.Evec_Im_U = Evec_Im_U;
+    }
+ 
+
+    //! Function to compute the value of all the initial vars on the grid
+    template <class data_t> void compute(Cell<data_t> current_cell) const
+    {
+        // where am i?
+        Vars<data_t> vars;
+        VarsTools::assign(vars, 0.);
+        Tensor<2,double> g_conf; // Metric Index low low
+
+	// Get first star data 
+        Coordinates<data_t> coords1(current_cell, m_dx, m_center1);
+        const double x1 = coords1.x;
+        const double y1 = coords1.y;
+        const double z1 = coords1.z;
+        const double t1 = 0;
+
+	proca_star_struct star1;
+	get_proca_star_values<data_t>(x1,y1,z1,t1,star1);
+
+	// Get second star data 
+        Coordinates<data_t> coords2(current_cell, m_dx, m_center2);
+        const double x2 = coords2.x;
+        const double y2 = coords2.y;
+        const double z2 = coords2.z;
+        const double t2 = 0;
+
+	proca_star_struct star2;
+	get_proca_star_values<data_t>(x2,y2,z2,t2,star2);
+
+	// Get corrections 
+        const double x_corr = abs(m_center1[0] - m_center2[0]);
+        const double y_corr = abs(m_center1[1] - m_center2[1]);
+        const double z_corr = abs(m_center1[2] - m_center2[2]);
+        const double t_corr = 0;
+
+
+	proca_star_struct corr;
+	get_proca_star_values<data_t>(x_corr,y_corr,z_corr,t_corr,corr);
+
+	// Superpose two stars 	
+        Tensor<1,double> Avec_Re;
+        Tensor<1,double> Avec_Im;
+        Tensor<1,double> Evec_Re_U;
+        Tensor<1,double> Evec_Im_U;
+        Tensor<2,double> g; // Metric Index low low
+	Tensor<2,double> h;
+
+	// Secret sauce fix 
+	FOR2(i,j) h[i][j] = corr.g[i][j]; 
+
+	/*FOR2(i,j){
+		h[i][j] = 0 ; 
+	}
+	FOR1(i) h[i][i] = 1;
+	*/
+	double lapse = star1.lapse + star2.lapse - 1.0 ;
+	double phi_Re = star1.phi_Re + star2.phi_Re;
+	double phi_Im = star1.phi_Im + star2.phi_Im;
+	FOR1(i){
+        	Avec_Re[i] = star1.Avec_Re[i] + star2.Avec_Re[i];
+        	Avec_Im[i] = star1.Avec_Im[i] + star2.Avec_Re[i];
+        	Evec_Re_U[i] = star1.Evec_Re_U[i] + star2.Evec_Re_U[i];
+        	Evec_Im_U[i] = star1.Evec_Im_U[i] + star2.Evec_Im_U[i];
+		FOR1(j){
+        		g[i][j] = star1.g[i][j]  + star2.g[i][j] - h[i][j]; // Metric Index low low
+		}
+	 }
 
          data_t deth = TensorAlgebra::compute_determinant<data_t>(g);
 
@@ -228,7 +306,6 @@ class InitialConditions
 
         current_cell.store_vars(phi_Re, c_Avec0_Re);
         current_cell.store_vars(phi_Im, c_Avec0_Im);
-
     }
 };
 
