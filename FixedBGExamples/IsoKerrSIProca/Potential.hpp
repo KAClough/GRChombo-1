@@ -42,36 +42,55 @@ class Potential
 			   const Tensor<2, data_t> &gamma_UU,
                            const MetricVars<data_t> &metric_vars) const
     {
-	
+	// defining some useful variables to ease the load 	
+
     	const double msquared = pow(m_params.mass, 2.0);
-    	
-	rho_potential = 0.5 * msquared * (vars.phi * vars.phi);
+        const double c4 = m_params.self_interaction;
+
+	data_t Asquared = 0;	
+        const data_t phisquared = vars.phi * vars.phi ;     	
     	FOR2(i, j)
     	{
-        	rho_potential +=
-            	0.5 * gamma_UU[i][j] * msquared * vars.Avec[i] * vars.Avec[j];
+        	Asquared += gamma_UU[i][j] * vars.Avec[i] * vars.Avec[j];
     	}
 
+	
+	// massive terms 
+	rho_potential = 0.5 * msquared * phisquared 
+		      + 0.5 * msquared * Asquared; 
+	// Self interacting terms 
+	rho_potential +=     c4 * msquared * Asquared * Asquared 
+		       + 2. * c4 * msquared * Asquared * phisquared 
+		       - 3. * c4 * msquared * phisquared * phisquared;
 
     	FOR1(i)
     	{
-        	Si_potential[i] = msquared * vars.phi * vars.Avec[i];
-
+				// massive terms 
+        	Si_potential[i] = msquared * vars.phi * vars.Avec[i]
+				// Self interacting terms 
+				+ 4. * c4 * msquared * vars.phi * vars.Avec[i] * Asquared 
+				- 4. * c4 * msquared * vars.phi * vars.Avec[i] * phisquared;
     	}
 
 	
     	FOR2(i, j)
     	{
+		// massive terms 
         	Sij_potential[i][j] =
             	msquared * (vars.Avec[i] * vars.Avec[j] +
                         0.5 * metric_vars.gamma[i][j] * vars.phi * vars.phi);
 
-        	FOR2(k, l)
-        	{
-            		Sij_potential[i][j] += - 0.5 * gamma_UU[k][l] * metric_vars.gamma[i][j] *
-                                 msquared * vars.Avec[k] * vars.Avec[l];
-        	}
-    	}
+            	Sij_potential[i][j] += - 0.5 * metric_vars.gamma[i][j] *
+                                 msquared * Asquared;
+        	
+    		// Self interacting terms 
+        	Sij_potential[i][j] +=
+            		  4. * c4 * msquared * vars.Avec[i] * vars.Avec[j] * Asquared
+		 	-      c4 * msquared * metric_vars.gamma[i][j] * Asquared * Asquared
+			- 4. * c4 * msquared * vars.Avec[i] * vars.Avec[j] * phisquared
+			+ 2. * c4 * msquared * metric_vars.gamma[i][j] * Asquared * phisquared 
+			-      c4 * msquared * metric_vars.gamma[i][j] * phisquared * phisquared; 
+	 	}
 
 	
     }
@@ -90,7 +109,7 @@ class Potential
             compute_christoffel(metric_vars.d1_gamma, gamma_UU);
 
         // for ease of reading
-        double c4 = m_params.self_interaction;
+        const double c4 = m_params.self_interaction;
 
         // Here we are defining often used terms
         // DA[i][j] = D_i A_j
