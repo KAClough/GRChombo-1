@@ -230,9 +230,9 @@ class InitialConditions
 	get_proca_star_values<data_t>(x2,y2,z2,t2,star2);
 
 	// Get corrections 
-        const double x_corr = abs(m_center1[0] - m_center2[0]);
-        const double y_corr = abs(m_center1[1] - m_center2[1]);
-        const double z_corr = abs(m_center1[2] - m_center2[2]);
+        const double x_corr = (m_center2[0] - m_center1[0]);
+        const double y_corr = (m_center2[1] - m_center1[1]);
+        const double z_corr = (m_center2[2] - m_center1[2]);
         const double t_corr = 0;
 
 
@@ -260,7 +260,7 @@ class InitialConditions
 	double phi_Im = star1.phi_Im + star2.phi_Im;
 	FOR1(i){
         	Avec_Re[i] = star1.Avec_Re[i] + star2.Avec_Re[i];
-        	Avec_Im[i] = star1.Avec_Im[i] + star2.Avec_Re[i];
+        	Avec_Im[i] = star1.Avec_Im[i] + star2.Avec_Im[i];
         	Evec_Re_U[i] = star1.Evec_Re_U[i] + star2.Evec_Re_U[i];
         	Evec_Im_U[i] = star1.Evec_Im_U[i] + star2.Evec_Im_U[i];
 		FOR1(j){
