@@ -26,18 +26,19 @@
    gravity. \sa CCZ4Matter(), ConstraintsMatter()
 */
 
+template <class potential_t>
 class ComplexProcaField
 {
   protected:
-    double m_vector_mass;    //!< The local copy of the matter param - the mass
+    potential_t m_potential; 
     double m_vector_damping; //!< The local copy of the matter param - the
                              //!< damping param
 
   public:
     //!  Constructor of class ComplexProcaField, inputs are the matter
     //!  parameters.
-    ComplexProcaField(double a_vector_mass, double a_vector_damping)
-        : m_vector_mass(a_vector_mass), m_vector_damping(a_vector_damping)
+    ComplexProcaField(potential_t a_potential, double a_vector_damping)
+        : m_potential(a_potential), m_vector_damping(a_vector_damping)
     {
     }
 

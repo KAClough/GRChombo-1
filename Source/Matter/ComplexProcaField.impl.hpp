@@ -11,15 +11,22 @@
 #define COMPLEXPROCAFIELD_IMPL_HPP_
 
 // Calculate the stress energy tensor elements
+template <class potential_t>
 template <class data_t, template <typename> class vars_t>
-emtensor_t<data_t> ComplexProcaField::compute_emtensor(
+emtensor_t<data_t> ComplexProcaField<potential_t>::compute_emtensor(
     const vars_t<data_t> &vars, const vars_t<Tensor<1, data_t>> &d1,
     const Tensor<2, data_t> &h_UU, const Tensor<3, data_t> &chris_ULL) const
 {
     emtensor_t<data_t> out;
 
+    // Getting all terms associated with the potential
+    data_t rho_potential = 0;
+    Tensor<1, data_t> Si_potential;
+    Tensor<2, data_t> Sij_potential;
+    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars);
+
+
     // Some useful quantities
-    const double msquared = pow(m_vector_mass, 2.0);
     const data_t one_over_chi2 = pow(vars.chi, -2.0);
 
     // calculate full spatial christoffel symbols
@@ -54,16 +61,8 @@ emtensor_t<data_t> ComplexProcaField::compute_emtensor(
     // S_ij = T_ij
     FOR2(i, j)
     {
-        out.Sij[i][j] =
-            // Re part
-            msquared * (vars.Avec_Re[i] * vars.Avec_Re[j] +
-                        0.5 * vars.h[i][j] / vars.chi * vars.Avec0_Re *
-                            vars.Avec0_Re) +
-            // Im part
-            msquared *
-                (vars.Avec_Im[i] * vars.Avec_Im[j] +
-                 0.5 * vars.h[i][j] / vars.chi * vars.Avec0_Im * vars.Avec0_Im);
-
+        out.Sij[i][j] = Sij_potential[i][j];
+            
         FOR2(k, l)
         {
             out.Sij[i][j] +=
@@ -72,17 +71,13 @@ emtensor_t<data_t> ComplexProcaField::compute_emtensor(
                 vars.h[i][k] * vars.h[j][l] * one_over_chi2 * vars.Evec_Re[k] *
                     vars.Evec_Re[l] +
                 0.5 * vars.h[k][l] * vars.h[i][j] * one_over_chi2 *
-                    vars.Evec_Re[k] * vars.Evec_Re[l] -
-                0.5 * h_UU[k][l] * vars.h[i][j] * msquared * vars.Avec_Re[k] *
-                    vars.Avec_Re[l] +
+                    vars.Evec_Re[k] * vars.Evec_Re[l] +
                 // Im part
                 vars.chi * h_UU[k][l] * (diff_DA_Im[i][k] * diff_DA_Im[j][l]) -
                 vars.h[i][k] * vars.h[j][l] * one_over_chi2 * vars.Evec_Im[k] *
                     vars.Evec_Im[l] +
                 0.5 * vars.h[k][l] * vars.h[i][j] * one_over_chi2 *
-                    vars.Evec_Im[k] * vars.Evec_Im[l] -
-                0.5 * h_UU[k][l] * vars.h[i][j] * msquared * vars.Avec_Im[k] *
-                    vars.Avec_Im[l];
+                    vars.Evec_Im[k] * vars.Evec_Im[l] ;
 
             FOR2(m, n)
             {
@@ -101,8 +96,7 @@ emtensor_t<data_t> ComplexProcaField::compute_emtensor(
     // S_i (note lower index) = n^a T_a0
     FOR1(i)
     {
-        out.Si[i] = msquared * vars.Avec0_Re * vars.Avec_Re[i] +
-                    msquared * vars.Avec0_Im * vars.Avec_Im[i];
+        out.Si[i] = Si_potential[i];
 
         FOR1(j)
         {
@@ -112,16 +106,12 @@ emtensor_t<data_t> ComplexProcaField::compute_emtensor(
     }
 
     // rho = n^a n^b T_ab
-    out.rho = 0.5 * msquared *
-              (vars.Avec0_Re * vars.Avec0_Re + vars.Avec0_Im * vars.Avec0_Im);
+    out.rho = rho_potential;
     FOR2(i, j)
     {
         out.rho += 0.5 * vars.h[i][j] / vars.chi *
                        (vars.Evec_Re[i] * vars.Evec_Re[j] +
-                        vars.Evec_Im[i] * vars.Evec_Im[j]) +
-                   0.5 * vars.chi * h_UU[i][j] * msquared *
-                       (vars.Avec_Re[i] * vars.Avec_Re[j] +
-                        vars.Avec_Im[i] * vars.Avec_Im[j]);
+                        vars.Evec_Im[i] * vars.Evec_Im[j]);
 
         FOR2(k, l)
         {
@@ -135,11 +125,11 @@ emtensor_t<data_t> ComplexProcaField::compute_emtensor(
 }
 
 // Adds VF evolution to the RHS
-
+template <class potential_t>
 template <class data_t, template <typename> class vars_t,
           template <typename> class diff2_vars_t,
           template <typename> class rhs_vars_t>
-void ComplexProcaField::add_matter_rhs(
+void ComplexProcaField<potential_t>::add_matter_rhs(
     rhs_vars_t<data_t> &total_rhs, const vars_t<data_t> &vars,
     const vars_t<Tensor<1, data_t>> &d1,
     const diff2_vars_t<Tensor<2, data_t>> &d2,
@@ -151,26 +141,20 @@ void ComplexProcaField::add_matter_rhs(
     const auto chris = compute_christoffel(d1.h, h_UU);
     const Tensor<3, data_t> chris_phys =
         compute_phys_chris(d1.chi, vars.chi, vars.h, h_UU, chris.ULL);
+    data_t dVdA_Re = 0;
+    data_t dVdA_Im = 0;
+    data_t dAvec0dt_Re = 0;
+    data_t dAvec0dt_Im = 0;
+    m_potential.compute_potential(dVdA_Re, dVdA_Im,
+				dAvec0dt_Re, dAvec0dt_Im,
+				 vars, d1);
 
     // evolution equations for vector fields A_0, A_i (note indices down) and
     // the conjugate momentum E^i (index up)
 
     // Start with real parts
-    total_rhs.Avec0_Re = vars.lapse * vars.K * vars.Avec0_Re + advec.Avec0_Re -
-                         vars.lapse * vars.Zvec_Re;
 
-    FOR2(i, j)
-    {
-        total_rhs.Avec0_Re +=
-            -vars.chi * h_UU[i][j] *
-            (vars.Avec_Re[i] * d1.lapse[j] + vars.lapse * d1.Avec_Re[i][j]);
-
-        FOR1(k)
-        {
-            total_rhs.Avec0_Re += vars.chi * h_UU[i][j] * vars.lapse *
-                                  chris_phys[k][i][j] * vars.Avec_Re[k];
-        }
-    }
+    total_rhs.Avec0_Re = dAvec0dt_Re + advec.Avec0_Re;
 
     FOR1(i)
     {
@@ -200,7 +184,7 @@ void ComplexProcaField::add_matter_rhs(
             total_rhs.Evec_Re[i] +=
                 vars.chi * h_UU[i][j] *
                     (vars.lapse * d1.Zvec_Re[j] +
-                     vars.lapse * pow(m_vector_mass, 2.0) * vars.Avec_Re[j]) -
+                     vars.lapse * dVdA_Re * vars.Avec_Re[j]) -
                 vars.Evec_Re[j] * d1.shift[i][j];
         }
 
@@ -223,7 +207,7 @@ void ComplexProcaField::add_matter_rhs(
     }
 
     // evolution equations for vector field Avec and its conjugate momentum Evec
-    total_rhs.Zvec_Re = vars.lapse * (pow(m_vector_mass, 2.0) * vars.Avec0_Re -
+    total_rhs.Zvec_Re = vars.lapse * (dVdA_Re * vars.Avec0_Re -
                                       m_vector_damping * vars.Zvec_Re) +
                         advec.Zvec_Re;
 
@@ -238,21 +222,7 @@ void ComplexProcaField::add_matter_rhs(
     }
 
     // Now for the imaginary parts
-    total_rhs.Avec0_Im = vars.lapse * vars.K * vars.Avec0_Im + advec.Avec0_Im -
-                         vars.lapse * vars.Zvec_Im;
-
-    FOR2(i, j)
-    {
-        total_rhs.Avec0_Im +=
-            -vars.chi * h_UU[i][j] *
-            (vars.Avec_Im[i] * d1.lapse[j] + vars.lapse * d1.Avec_Im[i][j]);
-
-        FOR1(k)
-        {
-            total_rhs.Avec0_Im += vars.chi * h_UU[i][j] * vars.lapse *
-                                  chris_phys[k][i][j] * vars.Avec_Im[k];
-        }
-    }
+    total_rhs.Avec0_Im = dAvec0dt_Im + advec.Avec0_Im;
 
     FOR1(i)
     {
@@ -282,7 +252,7 @@ void ComplexProcaField::add_matter_rhs(
             total_rhs.Evec_Im[i] +=
                 vars.chi * h_UU[i][j] *
                     (vars.lapse * d1.Zvec_Im[j] +
-                     vars.lapse * pow(m_vector_mass, 2.0) * vars.Avec_Im[j]) -
+                     vars.lapse * dVdA_Im * vars.Avec_Im[j]) -
                 vars.Evec_Im[j] * d1.shift[i][j];
         }
 
@@ -305,7 +275,7 @@ void ComplexProcaField::add_matter_rhs(
     }
 
     // evolution equations for vector field Avec and its conjugate momentum Evec
-    total_rhs.Zvec_Im = vars.lapse * (pow(m_vector_mass, 2.0) * vars.Avec0_Im -
+    total_rhs.Zvec_Im = vars.lapse * (dVdA_Im * vars.Avec0_Im -
                                       m_vector_damping * vars.Zvec_Im) +
                         advec.Zvec_Im;
 

@@ -1,0 +1,10 @@
+Resetting modules to system default. Reseting $MODULEPATH back to system default. All extra directories will be removed from $MODULEPATH.
+
+Currently Loaded Modules:
+  1) git/2.24.1      4) pmix/3.1.4      7) TACC          10) python3/3.7.0
+  2) autotools/1.2   5) hwloc/1.11.12   8) intel/19.1.1  11) phdf5/1.10.4
+  3) cmake/3.16.1    6) xalt/2.10.2     9) impi/19.0.9
+
+ 
+
+slurmstepd: error: *** JOB 2993717 ON c204-014 CANCELLED AT 2021-05-23T14:21:18 ***

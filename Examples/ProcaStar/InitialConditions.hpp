@@ -16,6 +16,7 @@
 #include "VarsTools.hpp"
 #include "simd.hpp"
 #include "ComplexProcaField.hpp"
+#include "Potential.hpp"
 
 //! Class which creates the initial conditions
 class InitialConditions
@@ -37,7 +38,7 @@ class InitialConditions
 
     // The evolution vars
     template <class data_t>
-    using Vars = ComplexProcaField::Vars<data_t>;
+    using Vars = ComplexProcaField<Potential>::Vars<data_t>;
 
   public:
     struct params_t {
