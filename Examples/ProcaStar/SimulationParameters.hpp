@@ -115,13 +115,21 @@ class SimulationParameters : public SimulationParametersBase
         std::string path_rvals  = folder + filename_rvals;
         std::string path_omega  = folder + filename_omega;
 
-        read_file(initalcondition_data.a0,path_a0);
-        read_file(initalcondition_data.da0dr,path_da0dr);
-        read_file(initalcondition_data.a1,path_a1);
-        read_file(initalcondition_data.m,path_m);
-        read_file(initalcondition_data.sig,path_sig);
+        read_file(a0,path_a0);
+        read_file(da0dr,path_da0dr);
+        read_file(a1,path_a1);
+        read_file(m,path_m);
+        read_file(sig,path_sig);
         read_file(rvals,path_rvals);
         read_number(initalcondition_data.omega,path_omega);
+
+	// I am so sorry Miren. 
+	initalcondition_data.size = a0.size();
+        initalcondition_data.a0= a0.data();
+        initalcondition_data.da0dr = da0dr.data();
+        initalcondition_data.a1 = a1.data();
+        initalcondition_data.m = m.data();
+        initalcondition_data.sig = sig.data();
 
         pp.load("centerProca1", initalcondition_data.center1);
         pp.load("centerProca2", initalcondition_data.center2);
@@ -179,6 +187,12 @@ class SimulationParameters : public SimulationParametersBase
         dx; // location of coarsest origin and dx
     std::vector<double> rvals;
     InitialConditions::params_t initalcondition_data;
+    std::vector<double> a0;
+    std::vector<double> da0dr;
+    std::vector<double> a1;
+    std::vector<double> m;
+    std::vector<double> sig;
+
     bool activate_extraction;
     double G_Newton;
     double spacing;
