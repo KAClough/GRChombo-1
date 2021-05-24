@@ -24,11 +24,12 @@ class InitialConditions
     const double m_dx;
     const double m_spacing;
     const double m_omega;
-    const std::vector<double> m_a0;
-    const std::vector<double> m_da0dr;
-    const std::vector<double> m_a1;
-    const std::vector<double> m_m;
-    const std::vector<double> m_sig;
+    const double* m_a0;
+    const double* m_da0dr;
+    const double* m_a1;
+    const double* m_m;
+    const double* m_sig;
+    const int m_size;
     const std::array<double, CH_SPACEDIM> m_center1;
     const std::array<double, CH_SPACEDIM> m_center2;
 
@@ -41,11 +42,12 @@ class InitialConditions
 
   public:
     struct params_t {
-        std::vector<double> a0;
-        std::vector<double> da0dr;
-        std::vector<double> a1;
-        std::vector<double> m;
-        std::vector<double> sig;
+        double* a0;
+        double* da0dr;
+        double* a1;
+        double* m;
+        double* sig;
+	int size;
         double omega;
         double spacing;
     	std::array<double, CH_SPACEDIM> center1;
@@ -65,30 +67,30 @@ class InitialConditions
 
     //! The constructor for the class
     InitialConditions(const double a_dx,
-                      params_t initalcondition_data
+                      const params_t initalcondition_data
                       )
         : m_dx(a_dx), m_center1(initalcondition_data.center1),  m_center2(initalcondition_data.center2),
 	m_a0(initalcondition_data.a0), m_da0dr(initalcondition_data.da0dr), m_a1(initalcondition_data.a1),
         m_m(initalcondition_data.m),m_sig(initalcondition_data.sig),
-        m_spacing(initalcondition_data.spacing),m_omega(initalcondition_data.omega)
+        m_spacing(initalcondition_data.spacing),m_omega(initalcondition_data.omega), m_size(initalcondition_data.size)
     {
     }
 
 
-     double linear_interpolation(const std::vector<double> vector, const double rr) const {
+     double linear_interpolation(const double* vector, const double rr) const {
         const int indxL = static_cast<int>(floor(rr / m_spacing));
         const int indxH = static_cast<int>(ceil(rr / m_spacing));
-        const int ind_max = vector.size();
+        const int ind_max = m_size;
 
         if ( indxH < ind_max){
             const double interpolation_value =
-            vector[indxL] +
-            (rr / m_spacing - indxL) * (vector[indxH] - vector[indxL]);
+            *(vector+indxL) +
+            (rr / m_spacing - indxL) * (*(vector+indxH) - *(vector+indxL));
 
             return interpolation_value;
         }
         else{
-            return vector[ind_max-1];
+            return *(vector+ind_max-1);
         }
     }
     
