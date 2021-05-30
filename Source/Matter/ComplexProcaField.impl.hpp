@@ -23,7 +23,7 @@ emtensor_t<data_t> ComplexProcaField<potential_t>::compute_emtensor(
     data_t rho_potential = 0;
     Tensor<1, data_t> Si_potential;
     Tensor<2, data_t> Sij_potential;
-    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars);
+    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1);
 
 
     // Some useful quantities

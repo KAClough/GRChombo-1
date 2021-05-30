@@ -23,7 +23,7 @@
    For an example of a matter_t class see ScalarField. \sa Constraints(),
    ScalarField()
 */
-template <class matter_t> class ComplexProcaFieldConstraints
+template <class matter_t, class potential_t> class ComplexProcaFieldConstraints
 {
   public:
     template <class data_t>
@@ -52,7 +52,7 @@ template <class matter_t> class ComplexProcaFieldConstraints
        default.
     */
     ComplexProcaFieldConstraints(const matter_t a_matter, double dx,
-                      double vector_mass,double G_Newton = 1.0);
+                      potential_t a_potential,double G_Newton = 1.0);
 
     //! The compute member which calculates the constraints at each point in the
     //! box
@@ -60,9 +60,9 @@ template <class matter_t> class ComplexProcaFieldConstraints
 
   protected:
     matter_t my_matter; //!< The matter object, e.g. a scalar field
+    potential_t m_potential;
     double m_G_Newton;  //!< Newton's constant, set to one by default.
     const FourthOrderDerivatives m_deriv;
-    const double m_vector_mass;
 };
 
 #include "ComplexProcaFieldConstraints.impl.hpp"

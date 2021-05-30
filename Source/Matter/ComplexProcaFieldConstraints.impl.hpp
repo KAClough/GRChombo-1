@@ -11,16 +11,16 @@
 #define COMPLEXPROCAFIELDCONSTRAINTS_IMPL_HPP_
 #include "DimensionDefinitions.hpp"
 
-template <class matter_t>
-ComplexProcaFieldConstraints<matter_t>::ComplexProcaFieldConstraints(const matter_t a_matter,
-                                               double dx, double vector_mass, double G_Newton)
-    : my_matter(a_matter), m_G_Newton(G_Newton), m_deriv(dx), m_vector_mass(vector_mass)
+template <class matter_t, class potential_t>
+ComplexProcaFieldConstraints<matter_t, potential_t>::ComplexProcaFieldConstraints(const matter_t a_matter,
+                                               double dx, potential_t a_potential, double G_Newton)
+    : my_matter(a_matter), m_G_Newton(G_Newton), m_deriv(dx), m_potential(a_potential)
 {
 }
 
-template <class matter_t>
+template <class matter_t, class potential_t>
 template <class data_t>
-void ComplexProcaFieldConstraints<matter_t>::compute(Cell<data_t> current_cell) const
+void ComplexProcaFieldConstraints<matter_t, potential_t>::compute(Cell<data_t> current_cell) const
 {
     // Load local vars and calculate derivs
     const auto d1 = m_deriv.template diff1<BSSNMatterVars>(current_cell);
@@ -33,11 +33,22 @@ void ComplexProcaFieldConstraints<matter_t>::compute(Cell<data_t> current_cell) 
     const auto chris = TensorAlgebra::compute_christoffel(d1.h, h_UU);
     const Tensor<3, data_t> chris_phys = TensorAlgebra::compute_phys_chris(
         d1.chi, vars.chi, vars.h, h_UU, chris.ULL);
+   
+     
+    data_t dVdA_Re = 0;
+    data_t dVdA_Im = 0;
+    data_t dAvec0dt_Re = 0;
+    data_t dAvec0dt_Im = 0;
+    m_potential.compute_potential(dVdA_Re, dVdA_Im,
+				dAvec0dt_Re, dAvec0dt_Im,
+				 vars, d1);
+
+
     // Energy Momentum Tensor
     const auto emtensor = my_matter.compute_emtensor(vars, d1, h_UU, chris.ULL);
 
     // Hamiltonian constraint
-    data_t proca = pow(m_vector_mass, 2.0) * vars.Avec0_Re;
+    data_t proca = dVdA_Re * vars.Avec0_Re;
 
     FOR1(i)
     {

@@ -106,7 +106,7 @@ void ProcaFieldLevel::specificPostTimeStep()
 void ProcaFieldLevel::prePlotLevel() {
 
     fillAllGhosts();
-    Potential potential;
+    Potential potential(m_p.potential_params);
     ComplexProcaField<Potential> proca_field(potential, m_p.proca_damping);
     BoxLoops::loop(
         MatterConstraints<ComplexProcaField<Potential>>(
@@ -114,8 +114,8 @@ void ProcaFieldLevel::prePlotLevel() {
         m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
 
     BoxLoops::loop(
-        ComplexProcaFieldConstraints<ComplexProcaField<Potential>>(
-            proca_field, m_dx, m_p.field_mu, m_p.G_Newton),
+        ComplexProcaFieldConstraints<ComplexProcaField<Potential>, Potential>(
+            proca_field, m_dx, potential, m_p.G_Newton),
         m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
 
     BoxLoops::loop(
@@ -129,7 +129,8 @@ void ProcaFieldLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
                                       const double a_time)
 {
     // Calculate MatterCCZ4 right hand side with matter_t = ProcaField
-    ComplexProcaField<Potential> proca_field(m_p.field_mu, m_p.proca_damping);
+    Potential potential(m_p.potential_params);
+    ComplexProcaField<Potential> proca_field(potential, m_p.proca_damping);
     MatterCCZ4<ComplexProcaField<Potential>> my_ccz4_matter(
             proca_field, m_p.ccz4_params, m_dx, m_p.sigma, m_p.formulation,
             m_p.G_Newton);
