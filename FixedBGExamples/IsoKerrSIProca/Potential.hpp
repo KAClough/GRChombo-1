@@ -143,35 +143,30 @@ class Potential
         // dphidt - for now the whole thing is here since it depends mainly
         // on the form of the potential - except the advection term which is in
         // the ProcaField code
-        dphidt = 0;
-        FOR2(i, j)
-        {
-            dphidt += -gamma_UU[i][j] * vars.Avec[i] * metric_vars.d1_lapse[j];
-        }
+        dphidt = metric_vars.lapse / C * (1.0 + 4.0 * c4 * Xsquared) *
+                  (metric_vars.K * vars.phi - DA_scalar)
         // QUESTION: Should this be lapse * Z / C  or lapse * Z??
-        dphidt += -metric_vars.lapse * vars.Z / C;
-        FOR4(i, j, k, l)
-        {
-            dphidt += -8.0 * c4 * metric_vars.lapse / C * gamma_UU[i][k] *
-                      gamma_UU[j][l] * vars.Avec[i] * vars.Avec[j] * DA[k][l];
-        }
-        dphidt += metric_vars.lapse / C * (1.0 + 4.0 * c4 * Xsquared) *
-                  (metric_vars.K * vars.phi - DA_scalar);
+                  - metric_vars.lapse * vars.Z / C;
         FOR1(i)
         {
             dphidt += 8.0 * c4 * vars.phi * metric_vars.lapse / C *
                       (vars.Evec[i] * vars.Avec[i]);
-        }
-        FOR4(i, j, k, l)
-        {
-            dphidt += 8.0 * c4 * vars.phi * metric_vars.lapse / C *
-                      (-metric_vars.K_tensor[i][j] * vars.Avec[k] *
-                       vars.Avec[l] * gamma_UU[i][k] * gamma_UU[j][l]);
-        }
-        FOR2(i, j)
-        {
-            dphidt += 8.0 * c4 * vars.phi * metric_vars.lapse / C *
+
+            FOR1(j)
+            {
+                dphidt += -gamma_UU[i][j] * vars.Avec[i] * metric_vars.d1_lapse[j]
+                   +  8.0 * c4 * vars.phi * metric_vars.lapse / C *
                       (2.0 * vars.Avec[i] * d1.phi[j] * gamma_UU[i][j]);
+
+                FOR2(k, l)
+                {
+                    dphidt += -8.0 * c4 * metric_vars.lapse / C * gamma_UU[i][k] *
+                               gamma_UU[j][l] * vars.Avec[i] * vars.Avec[j] * DA[k][l]
+                           +  8.0 * c4 * vars.phi * metric_vars.lapse / C *
+                              (-metric_vars.K_tensor[i][j] * vars.Avec[k] *
+                                vars.Avec[l] * gamma_UU[i][k] * gamma_UU[j][l]);
+                }
+            }
         }
     }
 };

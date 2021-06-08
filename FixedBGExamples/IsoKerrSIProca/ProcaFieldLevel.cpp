@@ -28,7 +28,6 @@
 #include "IsotropicKerrFixedBG.hpp"
 #include "Potential.hpp"
 #include "XSquared.hpp"
-//#include "ProcaConstraint.hpp"
 
 // Things to do at each advance step, after the RK4 is calculated
 void ProcaFieldLevel::specificAdvance()
@@ -65,8 +64,8 @@ void ProcaFieldLevel::specificPostTimeStep()
 {
     bool first_step = (m_time == m_dt);
 
-    // At any level, but after the 2nd coarsest timestep
-    int min_level = 1;
+    // At any level, but after the coarsest timestep
+    int min_level = 0;
     bool calculate_fluxes = at_level_timestep_multiple(min_level);
     if (calculate_fluxes)
     {
@@ -78,12 +77,10 @@ void ProcaFieldLevel::specificPostTimeStep()
         FixedBGDensityAndAngularMom<ProcaField, IsotropicKerrFixedBG> densities(
             proca_field, kerr_bh, m_dx, m_p.center);
         FixedBGEnergyAndAngularMomFlux<ProcaField, IsotropicKerrFixedBG> fluxes(
-            proca_field, kerr_bh, m_dx, m_p.center,
-            m_p.extraction_params.zaxis_over_xaxis);
-        //        XSquared set_xsquared(m_p.potential_params, m_p.bg_params,
-        //        m_p.center,
-        //                              m_dx);
-        BoxLoops::loop(make_compute_pack(densities, fluxes), //, set_xsquared),
+            proca_field, kerr_bh, m_dx, m_p.center);
+        XSquared set_xsquared(m_p.potential_params, m_p.bg_params,
+                m_p.center, m_dx);
+        BoxLoops::loop(make_compute_pack(densities, fluxes, set_xsquared),
                        m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
         BoxLoops::loop(
             ExcisionProcaDiagnostics<ProcaField, IsotropicKerrFixedBG>(
@@ -124,14 +121,16 @@ void ProcaFieldLevel::specificPostTimeStep()
 }
 
 // Things to do before outputting a plot file
-void ProcaFieldLevel::prePlotLevel() {
-	
-	Potential potential(m_p.potential_params);
-	ProcaField proca_field(potential, m_p.proca_damping);
-	IsotropicKerrFixedBG kerr_bh(m_p.bg_params, m_dx);
-	FixedBGProcaConstraint<Potential,IsotropicKerrFixedBG> contraint(kerr_bh,m_dx,1,1,potential);
-	BoxLoops::loop(contraint,
-                   m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS, disable_simd());
+void ProcaFieldLevel::prePlotLevel() 
+{
+    Potential potential(m_p.potential_params);
+    ProcaField proca_field(potential, m_p.proca_damping);
+    IsotropicKerrFixedBG kerr_bh(m_p.bg_params, m_dx);
+    FixedBGProcaConstraint<Potential,IsotropicKerrFixedBG> constraint(kerr_bh,
+                   m_dx, m_p.potential_params.mass, m_p.potential_params.self_interaction, 
+                   potential);
+    BoxLoops::loop(constraint,
+                  m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
 }
 
 // Things to do in RHS update, at each RK4 step

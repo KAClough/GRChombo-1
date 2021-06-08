@@ -6,7 +6,7 @@
 #ifndef FLUXEXTRACTION_HPP_
 #define FLUXEXTRACTION_HPP_
 
-#include "SpheroidalExtraction.hpp"
+#include "SphericalExtraction.hpp"
 //!  The class allows extraction of the values of the flux components on
 //!  spheroidal shells at specified radii, and integration over those shells
 /*!
@@ -14,14 +14,14 @@
    components over spheroidal shells at specified radii. The values may then be
    written to an output file, or integrated across the surfaces.
 */
-class FluxExtraction : public SpheroidalExtraction
+class FluxExtraction : public SphericalExtraction
 {
   public:
     //! The constructor
-    FluxExtraction(SpheroidalExtraction::params_t &a_params, double a_dt,
+    FluxExtraction(SphericalExtraction::params_t &a_params, double a_dt,
                    double a_time, bool a_first_step,
                    double a_restart_time = 0.0)
-        : SpheroidalExtraction(a_params, a_dt, a_time, a_first_step,
+        : SphericalExtraction(a_params, a_dt, a_time, a_first_step,
                                a_restart_time)
     {
         add_var(c_Edot, VariableType::diagnostic);
@@ -30,7 +30,7 @@ class FluxExtraction : public SpheroidalExtraction
 
     //! The old constructor which assumes it is called in specificPostTimeStep
     //! so the first time step is when m_time == m_dt
-    FluxExtraction(SpheroidalExtraction::params_t a_params, double a_dt,
+    FluxExtraction(SphericalExtraction::params_t a_params, double a_dt,
                    double a_time, double a_restart_time = 0.0)
         : FluxExtraction(a_params, a_dt, a_time, (a_dt == a_time),
                          a_restart_time)

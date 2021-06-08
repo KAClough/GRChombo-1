@@ -12,7 +12,7 @@
 // Problem specific includes:
 #include "IsotropicKerrFixedBG.hpp"
 #include "Potential.hpp"
-#include "SpheroidalExtraction.hpp"
+#include "SphericalExtraction.hpp"
 
 class SimulationParameters : public ChomboParameters
 {
@@ -45,15 +45,14 @@ class SimulationParameters : public ChomboParameters
         extraction_params.num_extraction_radii = 2;
         extraction_params.extraction_radii = {r_min, r_max};
         pp.load("num_points_phi", extraction_params.num_points_phi, 2);
-        pp.load("num_points_t", extraction_params.num_points_t, 5);
-        if (extraction_params.num_points_t % 2 == 0)
+        pp.load("num_points_theta", extraction_params.num_points_theta, 5);
+        if (extraction_params.num_points_theta % 2 == 0)
         {
-            extraction_params.num_points_t += 1;
-            pout() << "Parameter: num_points_t incompatible with Simpson's "
+            extraction_params.num_points_theta += 1;
+            pout() << "Parameter: num_points_theta incompatible with Simpson's "
                    << "rule so increased by 1.\n";
         }
         pp.load("extraction_center", extraction_params.center, center);
-        pp.load("zaxis_over_xaxis", extraction_params.zaxis_over_xaxis, 1.0);
         pp.load("write_extraction", extraction_params.write_extraction, false);
     }
 
@@ -65,7 +64,7 @@ class SimulationParameters : public ChomboParameters
     // Collection of parameters necessary for the sims
     IsotropicKerrFixedBG::params_t bg_params;
     Potential::params_t potential_params;
-    SpheroidalExtraction::params_t extraction_params;
+    SphericalExtraction::params_t extraction_params;
 };
 
 #endif /* SIMULATIONPARAMETERS_HPP_ */
