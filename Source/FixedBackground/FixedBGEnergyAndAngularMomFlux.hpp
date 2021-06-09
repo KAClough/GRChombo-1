@@ -117,8 +117,8 @@ class FixedBGEnergyAndAngularMomFlux
 
         // This factor of det_Sigma takes care of the surface element
         // The r2sintheta part is counted in the coordinate integration
-        // so remove it here
-        Edot *= sqrt_det_Sigma / r2sintheta;
+        // so remove it here, minus sign makes the flux physically sensible
+        Edot *= - sqrt_det_Sigma / r2sintheta;
 
         // The integrand for the angular momentum flux out of a radial
         // shell at the current position

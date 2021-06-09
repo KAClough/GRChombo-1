@@ -78,9 +78,7 @@ void ProcaFieldLevel::specificPostTimeStep()
             proca_field, kerr_bh, m_dx, m_p.center);
         FixedBGEnergyAndAngularMomFlux<ProcaField, IsotropicKerrFixedBG> fluxes(
             proca_field, kerr_bh, m_dx, m_p.center);
-        XSquared set_xsquared(m_p.potential_params, m_p.bg_params,
-                m_p.center, m_dx);
-        BoxLoops::loop(make_compute_pack(densities, fluxes, set_xsquared),
+        BoxLoops::loop(make_compute_pack(densities, fluxes),
                        m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
         BoxLoops::loop(
             ExcisionProcaDiagnostics<ProcaField, IsotropicKerrFixedBG>(
@@ -129,7 +127,9 @@ void ProcaFieldLevel::prePlotLevel()
     FixedBGProcaConstraint<Potential,IsotropicKerrFixedBG> constraint(kerr_bh,
                    m_dx, m_p.potential_params.mass, m_p.potential_params.self_interaction, 
                    potential);
-    BoxLoops::loop(constraint,
+    XSquared set_xsquared(m_p.potential_params, m_p.bg_params,
+                m_p.center, m_dx);
+    BoxLoops::loop(make_compute_pack(constraint, set_xsquared),
                   m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
 }
 

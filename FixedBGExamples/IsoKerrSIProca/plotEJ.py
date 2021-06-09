@@ -40,7 +40,7 @@ plt.semilogy(timedata, dM[N]*np.exp(2*omega_Im * timedata), '--', lw = 1.0, labe
 plt.xlabel("time")
 plt.ylabel("Cloud E/J")
 #plt.xlim(0, 1000)
-#plt.ylim(1e-5, 1e-2)
+plt.ylim(1e-5, 1e1)
 plt.legend()
 plt.grid()
 
