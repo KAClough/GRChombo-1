@@ -154,7 +154,7 @@ void ProcaFieldLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
 void ProcaFieldLevel::computeTaggingCriterion(FArrayBox &tagging_criterion,
                                               const FArrayBox &current_state)
 {
-    const double radius_bh = 0.5;
+    const double radius_bh = 0.25;
     BoxLoops::loop(FixedGridsTaggingCriterionBH(m_dx, m_level, m_p.max_level,
                                                 m_p.L, m_p.center, radius_bh),
                    current_state, tagging_criterion, disable_simd());

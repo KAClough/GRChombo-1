@@ -2,16 +2,16 @@
 
 verbosity = 0
 integral_filename = ProcaDensities
-chk_prefix = /scratch/dp092/dc-cui1/SISR/SISR0_chk
-plot_prefix = /scratch/dp092/dc-cui1/SISR/SISR0_plt
-#restart_file = /scratch/dp092/dc-cui1/SISR/SISR0_chk000000.3d.hdf5
+chk_prefix = /scratch/dp092/dc-cui1/SISR/SISR0m1HR_chk
+plot_prefix = /scratch/dp092/dc-cui1/SISR/SISRm1HR_plt
+#restart_file = /scratch/dp092/dc-cui1/SISR/SISRm1_chk010000.3d.hdf5
 write_plot_ghosts = 0
 
 # Set up grid spacings and regrid params
 # NB - the N values need to be multiples of block_factor
-N1 = 96
-N2 = 96
-N3 = 48
+N1 = 128
+N2 = 128
+N3 = 64
 
 # Length of longest box side, dx_coarsest = L/N(max)
 # NB if non cubic, this determines dx for all sides
@@ -73,7 +73,7 @@ sigma = 1.0
 
 # PF Initial data
 proca_mass = 0.5
-proca_self_interaction = 0.0
+proca_self_interaction = -1.0
 proca_damping = 1.0
 field_amplitude = 0.1
 
