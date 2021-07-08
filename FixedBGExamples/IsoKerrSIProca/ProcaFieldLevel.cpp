@@ -28,6 +28,7 @@
 #include "IsotropicKerrFixedBG.hpp"
 #include "Potential.hpp"
 #include "XSquared.hpp"
+#include "violation.hpp"
 
 // Things to do at each advance step, after the RK4 is calculated
 void ProcaFieldLevel::specificAdvance()
@@ -71,7 +72,7 @@ void ProcaFieldLevel::specificPostTimeStep()
     {
         // calculate the density of the PF, but excise the BH region completely
         fillAllEvolutionGhosts();
-        Potential potential(m_p.potential_params);
+        Potential potential(m_p.potential_params, m_p.bg_params);
         ProcaField proca_field(potential, m_p.proca_damping);
         IsotropicKerrFixedBG kerr_bh(m_p.bg_params, m_dx);
         FixedBGDensityAndAngularMom<ProcaField, IsotropicKerrFixedBG> densities(
@@ -89,21 +90,27 @@ void ProcaFieldLevel::specificPostTimeStep()
     // write out the integral after each coarse but one timestep
     if (m_level == min_level)
     {
+	violation set_violation(m_p.potential_params, m_p.bg_params, m_p.center,
+                              m_dx);
+	BoxLoops::loop(make_compute_pack(set_violation),
+                  m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
+
         // integrate the densities and write to a file
         AMRReductions<VariableType::diagnostic> amr_reductions(m_gr_amr);
         double rho_sum = amr_reductions.sum(c_rho);
         double rho_J_sum = amr_reductions.sum(c_rhoJ);
+        double violation_sum = sqrt(amr_reductions.sum(c_violation));
 
         SmallDataIO integral_file(m_p.integral_filename, m_dt, m_time,
                                   m_restart_time, SmallDataIO::APPEND,
                                   first_step);
         // remove any duplicate data if this is post restart
         integral_file.remove_duplicate_time_data();
-        std::vector<double> data_for_writing = {rho_sum, rho_J_sum};
+        std::vector<double> data_for_writing = {rho_sum, rho_J_sum, violation_sum};
         // write data
         if (first_step)
         {
-            integral_file.write_header_line({"rho", "rhoJ"});
+            integral_file.write_header_line({"rho", "rhoJ", "violation"});
         }
         integral_file.write_time_data_line(data_for_writing);
 
@@ -121,15 +128,16 @@ void ProcaFieldLevel::specificPostTimeStep()
 // Things to do before outputting a plot file
 void ProcaFieldLevel::prePlotLevel() 
 {
-    Potential potential(m_p.potential_params);
+    Potential potential(m_p.potential_params, m_p.bg_params);
     ProcaField proca_field(potential, m_p.proca_damping);
     IsotropicKerrFixedBG kerr_bh(m_p.bg_params, m_dx);
     FixedBGProcaConstraint<Potential,IsotropicKerrFixedBG> constraint(kerr_bh,
                    m_dx, m_p.potential_params.mass, m_p.potential_params.self_interaction, 
-                   potential);
-    XSquared set_xsquared(m_p.potential_params, m_p.bg_params,
-                m_p.center, m_dx);
-    BoxLoops::loop(make_compute_pack(constraint, set_xsquared),
+                   potential, m_p.center, m_dx);
+    violation set_violation(m_p.potential_params, m_p.bg_params, m_p.center,
+                              m_dx);
+
+    BoxLoops::loop(make_compute_pack(set_violation),
                   m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
 }
 
@@ -138,7 +146,7 @@ void ProcaFieldLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
                                       const double a_time)
 {
     // Calculate MatterCCZ4 right hand side with matter_t = ProcaField
-    Potential potential(m_p.potential_params);
+    Potential potential(m_p.potential_params, m_p.bg_params);
     ProcaField proca_field(potential, m_p.proca_damping);
     IsotropicKerrFixedBG kerr_bh(m_p.bg_params, m_dx);
     FixedBGEvolution<ProcaField, IsotropicKerrFixedBG> my_matter(

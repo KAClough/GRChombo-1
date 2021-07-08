@@ -41,7 +41,14 @@ class SimulationParameters : public ChomboParameters
         pp.load("r_min", r_min);
         pp.load("r_max", r_max);
 
-        // Extraction params
+ 	// Potential params
+        pp.load("mu_H", potential_params.mu_H);
+        pp.load("lambda", potential_params.lambda);
+	pp.load("r_0", potential_params.r_0);
+        pp.load("k", potential_params.k);
+        pp.load("mu_c", potential_params.mu_c);
+
+       // Extraction params
         extraction_params.num_extraction_radii = 2;
         extraction_params.extraction_radii = {r_min, r_max};
         pp.load("num_points_phi", extraction_params.num_points_phi, 2);

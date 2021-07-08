@@ -71,7 +71,7 @@ class ProcaConstraint
             phi += -d1.Evec[i][i];
             FOR1(j) { phi += -chris_phys.ULL[i][i][j] * vars.Evec[j]; }
         }
-        phi = phi / m_mu / m_mu;
+        //phi = phi / m_mu / m_mu;
 
         // Store the initial values of the variables
         current_cell.store_vars(phi, c_phi);

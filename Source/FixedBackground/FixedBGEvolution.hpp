@@ -68,8 +68,10 @@ template <class matter_t, class background_t> class FixedBGEvolution
         VarsTools::assign(matter_rhs, 0.); // All components set to zero
 
         // add evolution of matter fields and dissipation
+
+	const Coordinates<data_t> coords(current_cell, m_dx, m_center);
         m_matter.matter_rhs(matter_rhs, matter_vars, metric_vars, d1, d2,
-                            advec);
+                            advec, coords);
         m_deriv.add_dissipation(matter_rhs, current_cell, m_sigma);
 
         // Write the rhs into the output FArrayBox

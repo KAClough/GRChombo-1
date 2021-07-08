@@ -3,30 +3,25 @@
  * Please refer to LICENSE in GRChombo's root directory.
  */
 
-#if !defined(FIXEDBGPROCAFIELD_HPP_)
-#error "This file should only be included through FixedBGProcaField.hpp"
+#if !defined(FIXEDBGPROCAFIELDTEST_HPP_)
+#error "This file should only be included through FixedBGProcaFieldTest.hpp"
 #endif
 
-#ifndef FIXEDBGPROCAFIELD_IMPL_HPP_
-#define FIXEDBGPROCAFIELD_IMPL_HPP_
+#ifndef FIXEDBGPROCAFIELDTEST_IMPL_HPP_
+#define FIXEDBGPROCAFIELDTEST_IMPL_HPP_
 
 // Calculate the stress energy tensor elements
 template <class potential_t>
 template <class data_t, template <typename> class vars_t>
-emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
+emtensor_t<data_t> FixedBGProcaFieldTest<potential_t>::compute_emtensor(
     const vars_t<data_t> &vars, const MetricVars<data_t> &metric_vars,
     const vars_t<Tensor<1, data_t>> &d1, const Tensor<2, data_t> &gamma_UU,
     const Tensor<3, data_t> &chris_phys_ULL) const
 {
     emtensor_t<data_t> out;
 
-    // Getting all terms associated with the potential
-    data_t rho_potential = 0;
-    Tensor<1, data_t> Si_potential;
-    Tensor<2, data_t> Sij_potential;
-    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars);
-
     // Some useful quantities
+    const double msquared = pow(m_potential.m_params.mass, 2.0);
 
     // D_i A_j
     Tensor<2, data_t> DA;
@@ -44,7 +39,9 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
     // S_ij = T_ij
     FOR2(i, j)
     {
-        out.Sij[i][j] = Sij_potential[i][j];
+        out.Sij[i][j] =
+            msquared * (vars.Avec[i] * vars.Avec[j] +
+                        0.5 * metric_vars.gamma[i][j] * vars.phi * vars.phi);
 
         FOR2(k, l)
         {
@@ -53,7 +50,9 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
                                  vars.Evec[k] * vars.Evec[l] +
                              0.5 * metric_vars.gamma[k][l] *
                                  metric_vars.gamma[i][j] * vars.Evec[k] *
-                                 vars.Evec[l] ;
+                                 vars.Evec[l] -
+                             0.5 * gamma_UU[k][l] * metric_vars.gamma[i][j] *
+                                 msquared * vars.Avec[k] * vars.Avec[l];
             FOR2(m, n)
             {
                 out.Sij[i][j] += -0.5 * metric_vars.gamma[i][j] *
@@ -70,17 +69,19 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
     // S_i (note lower index) = n^a T_a0
     FOR1(i)
     {
-        out.Si[i] = Si_potential[i];
+        out.Si[i] = msquared * vars.phi * vars.Avec[i];
 
         FOR1(j) { out.Si[i] += vars.Evec[j] * diff_DA[i][j]; }
     }
 
     // rho = n^a n^b T_ab
-    out.rho = rho_potential;
+    out.rho = 0.5 * msquared * (vars.phi * vars.phi);
     FOR2(i, j)
     {
         out.rho +=
-            0.5 * metric_vars.gamma[i][j] * vars.Evec[i] * vars.Evec[j];
+            0.5 * metric_vars.gamma[i][j] * vars.Evec[i] * vars.Evec[j] +
+            0.5 * gamma_UU[i][j] * msquared * vars.Avec[i] * vars.Avec[j];
+
         FOR2(k, l)
         {
             out.rho += 0.5 * gamma_UU[i][k] * gamma_UU[j][l] * DA[k][l] *
@@ -96,11 +97,12 @@ template <class potential_t>
 template <class data_t, template <typename> class vars_t,
           template <typename> class diff2_vars_t,
           template <typename> class rhs_vars_t>
-void FixedBGProcaField<potential_t>::matter_rhs(
+void FixedBGProcaFieldTest<potential_t>::matter_rhs(
     rhs_vars_t<data_t> &total_rhs, const vars_t<data_t> &vars,
     const MetricVars<data_t> &metric_vars, const vars_t<Tensor<1, data_t>> &d1,
     const diff2_vars_t<Tensor<2, data_t>> &d2,
-    const vars_t<data_t> &advec, const Coordinates<data_t> coords) const
+    const vars_t<data_t> &advec,
+    const Coordinates<data_t> &coords) const
 {
     // calculate full spatial christoffel symbols
     using namespace TensorAlgebra;
@@ -185,4 +187,4 @@ void FixedBGProcaField<potential_t>::matter_rhs(
     }
 }
 
-#endif /* FIXEDBGPROCAFIELD_IMPL_HPP_ */
+#endif /* FIXEDBGPROCAFIELDTEST_IMPL_HPP_ */

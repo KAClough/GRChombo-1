@@ -3,8 +3,8 @@
  * Please refer to LICENSE in GRChombo's root directory.
  */
 
-#ifndef FIXEDBGPROCAFIELD_HPP_
-#define FIXEDBGPROCAFIELD_HPP_
+#ifndef FIXEDBGPROCAFIELDTEST_HPP_
+#define FIXEDBGPROCAFIELDTEST_HPP_
 
 #include "ADMFixedBGVars.hpp"
 #include "CCZ4Geometry.hpp"
@@ -27,7 +27,7 @@
    conjugate momentum of Avec, Evec. It assumes minimal coupling of the field to
    gravity. \sa CCZ4Matter(), ConstraintsMatter()
 */
-template <class potential_t> class FixedBGProcaField
+template <class potential_t> class FixedBGProcaFieldTest
 {
   protected:
     double m_vector_damping;       //!< The local copy of the matter param - the
@@ -35,9 +35,9 @@ template <class potential_t> class FixedBGProcaField
     const potential_t m_potential; //!< The potential params - mass, c4
 
   public:
-    //!  Constructor of class FixedBGProcaField, inputs are the matter
+    //!  Constructor of class FixedBGProcaFieldTest, inputs are the matter
     //!  parameters.
-    FixedBGProcaField(const potential_t potential, double a_vector_damping)
+    FixedBGProcaFieldTest(const potential_t potential, double a_vector_damping)
         : m_vector_damping(a_vector_damping), m_potential(potential)
     {
     }
@@ -97,7 +97,7 @@ template <class potential_t> class FixedBGProcaField
         const vars_t<Tensor<1, data_t>> &d1,    //!< the 1st derivs
         const Tensor<2, data_t> &gamma_UU,      //!< the inverse metric (raised)
         const Tensor<3, data_t> &chris_phys_ULL //!< the conformal christoffel
-        ) const;
+    ) const;
 
     //! The function which adds in the matter field RHS, given the vars and
     //! derivatives
@@ -112,9 +112,9 @@ template <class potential_t> class FixedBGProcaField
         const vars_t<Tensor<1, data_t>> &d1, //!< the value of the 1st derivs
         const diff2_vars_t<Tensor<2, data_t>> &d2, //!< the 2nd derivs
         const vars_t<data_t> &advec,
-	const Coordinates<data_t> coords) const; //!< the value of beta^i d_i(var).
+	const Coordinates<data_t> &coords) const; //!< the value of beta^i d_i(var).
 };
 
-#include "FixedBGProcaField.impl.hpp"
+#include "FixedBGProcaFieldTest.impl.hpp"
 
-#endif /* FIXEDBGPROCAFIELD_HPP_ */
+#endif /* FIXEDBGPROCAFIELDTEST_HPP_ */
