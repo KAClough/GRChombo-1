@@ -100,7 +100,7 @@ void FixedBGProcaField<potential_t>::matter_rhs(
     rhs_vars_t<data_t> &total_rhs, const vars_t<data_t> &vars,
     const MetricVars<data_t> &metric_vars, const vars_t<Tensor<1, data_t>> &d1,
     const diff2_vars_t<Tensor<2, data_t>> &d2,
-    const vars_t<data_t> &advec) const
+    const vars_t<data_t> &advec, const Coordinates<data_t> coords) const
 {
     // calculate full spatial christoffel symbols
     using namespace TensorAlgebra;
@@ -112,7 +112,7 @@ void FixedBGProcaField<potential_t>::matter_rhs(
     // dVdA = mu^2 ( 1 + 4 c4 (A^k A_k - phi^2))
     data_t dVdA = 0;
     data_t dphidt = 0;
-    m_potential.compute_potential(dVdA, dphidt, vars, d1, metric_vars);
+    m_potential.compute_potential(dVdA, dphidt, coords, vars, d1, metric_vars);
 
     // evolution equations for vector fields phi, A_i (note indices down) and
     // the conjugate momentum E^i (index up)

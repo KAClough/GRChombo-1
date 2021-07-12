@@ -18,6 +18,7 @@
 // Problem specific includes
 #include "ExcisionProcaDiagnostics.hpp"
 #include "ExcisionProcaEvolution.hpp"
+#include "FixedBGProcaConstraint.hpp"
 #include "FixedBGDensityAndAngularMom.hpp"
 #include "FixedBGEnergyAndAngularMomFlux.hpp"
 #include "FixedBGEvolution.hpp"
@@ -27,7 +28,6 @@
 #include "KerrSchildFixedBG.hpp"
 #include "Potential.hpp"
 #include "XSquared.hpp"
-//#include "ProcaConstraint.hpp"
 
 // Things to do at each advance step, after the RK4 is calculated
 void ProcaFieldLevel::specificAdvance()
@@ -50,18 +50,8 @@ void ProcaFieldLevel::initialData()
     InitialConditions set_field(m_p.field_amplitude, m_p.potential_params.mass,
                                 m_p.center, m_p.bg_params, m_dx);
     BoxLoops::loop(set_field, m_state_new, m_state_new, FILL_GHOST_CELLS);
+    BoxLoops::loop(kerr_bh, m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
 
-    // BoxLoops::loop(kerr_bh, m_state_new, m_state_diagnostics,
-    //                SKIP_GHOST_CELLS);
-
-    // now the gauss constraint
-    /*
-        fillAllGhosts();
-        ProcaConstraint enforce_constraint(m_p.center, m_p.bg_params,
-                                           m_p.potential_params.mass, m_dx);
-        BoxLoops::loop(enforce_constraint, m_state_new, m_state_new,
-                       EXCLUDE_GHOST_CELLS);
-    */
     // make excision data zero
     BoxLoops::loop(ExcisionProcaEvolution<ProcaField, KerrSchildFixedBG>(
                        m_dx, m_p.center, kerr_bh, 1.0),
@@ -75,31 +65,29 @@ void ProcaFieldLevel::specificPostTimeStep()
     bool first_step = (m_time == m_dt);
 
     // At any level, but after the coarsest timestep
-    bool calculate_fluxes = at_level_timestep_multiple(0);
+    int min_level = 0;
+    bool calculate_fluxes = at_level_timestep_multiple(min_level);
     if (calculate_fluxes)
     {
         // calculate the density of the PF, but excise the BH region completely
-        fillAllGhosts();
+        fillAllEvolutionGhosts();
         Potential potential(m_p.potential_params);
         ProcaField proca_field(potential, m_p.proca_damping);
         KerrSchildFixedBG kerr_bh(m_p.bg_params, m_dx);
         FixedBGDensityAndAngularMom<ProcaField, KerrSchildFixedBG> densities(
             proca_field, kerr_bh, m_dx, m_p.center);
         FixedBGEnergyAndAngularMomFlux<ProcaField, KerrSchildFixedBG> fluxes(
-            proca_field, kerr_bh, m_dx, m_p.center,
-            m_p.extraction_params.zaxis_over_xaxis);
-        XSquared set_xsquared(m_p.potential_params, m_p.bg_params, m_p.center,
-                              m_dx);
-        BoxLoops::loop(make_compute_pack(densities, fluxes, set_xsquared),
+            proca_field, kerr_bh, m_dx, m_p.center);
+        BoxLoops::loop(make_compute_pack(densities, fluxes),
                        m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
-        BoxLoops::loop(ExcisionProcaDiagnostics<ProcaField, KerrSchildFixedBG>(
-                           m_dx, m_p.center, kerr_bh, 1.0),
-                       m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS,
-                       disable_simd());
+        BoxLoops::loop(
+            ExcisionProcaDiagnostics<ProcaField, KerrSchildFixedBG>(
+                m_dx, m_p.center, kerr_bh, m_p.r_min, m_p.r_max),
+            m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS, disable_simd());
     }
 
-    // write out the integral after each coarse timestep
-    if (m_level == 0)
+    // write out the integral after each coarse but one timestep
+    if (m_level == min_level)
     {
         // integrate the densities and write to a file
         AMRReductions<VariableType::diagnostic> amr_reductions(m_gr_amr);
@@ -120,7 +108,10 @@ void ProcaFieldLevel::specificPostTimeStep()
         integral_file.write_time_data_line(data_for_writing);
 
         // Now refresh the interpolator and do the interpolation
-        m_gr_amr.m_interpolator->refresh();
+        bool fill_ghosts = false;
+        m_gr_amr.m_interpolator->refresh(fill_ghosts);
+        m_gr_amr.fill_multilevel_ghosts(VariableType::diagnostic,
+                                        Interval(c_Edot, c_Jdot), min_level);
         FluxExtraction my_extraction(m_p.extraction_params, m_dt, m_time,
                                      m_restart_time);
         my_extraction.execute_query(m_gr_amr.m_interpolator);
@@ -128,7 +119,19 @@ void ProcaFieldLevel::specificPostTimeStep()
 }
 
 // Things to do before outputting a plot file
-void ProcaFieldLevel::prePlotLevel() {}
+void ProcaFieldLevel::prePlotLevel() 
+{
+    Potential potential(m_p.potential_params);
+    ProcaField proca_field(potential, m_p.proca_damping);
+    KerrSchildFixedBG kerr_bh(m_p.bg_params, m_dx);
+    FixedBGProcaConstraint<Potential,KerrSchildFixedBG> constraint(kerr_bh,
+                   m_dx, m_p.potential_params.mass, m_p.potential_params.self_interaction, 
+                   potential);
+    XSquared set_xsquared(m_p.potential_params, m_p.bg_params,
+                m_p.center, m_dx);
+    BoxLoops::loop(make_compute_pack(constraint, set_xsquared),
+                  m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
+}
 
 // Things to do in RHS update, at each RK4 step
 void ProcaFieldLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
@@ -144,14 +147,14 @@ void ProcaFieldLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
 
     // excise within horizon for evolution vars
     BoxLoops::loop(ExcisionProcaEvolution<ProcaField, KerrSchildFixedBG>(
-                       m_dx, m_p.center, kerr_bh, m_p.excision_width),
+                       m_dx, m_p.center, kerr_bh, 0.9),
                    a_soln, a_rhs, SKIP_GHOST_CELLS, disable_simd());
 }
 
 void ProcaFieldLevel::computeTaggingCriterion(FArrayBox &tagging_criterion,
                                               const FArrayBox &current_state)
 {
-    const double radius_bh = 1.75;
+    const double radius_bh = 0.5;
     BoxLoops::loop(FixedGridsTaggingCriterionBH(m_dx, m_level, m_p.max_level,
                                                 m_p.L, m_p.center, radius_bh),
                    current_state, tagging_criterion, disable_simd());

@@ -125,7 +125,8 @@ class FixedBGComplexProcaField
             &metric_vars, //!< the value of the metric variables
         const vars_t<Tensor<1, data_t>> &d1, //!< the value of the 1st derivs
         const diff2_vars_t<Tensor<2, data_t>> &d2, //!< the 2nd derivs
-        const vars_t<data_t> &advec) const; //!< the value of beta^i d_i(var).
+        const vars_t<data_t> &advec,
+	const Coordinates<data_t> coords) const; //!< the value of beta^i d_i(var).
 };
 
 #include "FixedBGComplexProcaField.impl.hpp"

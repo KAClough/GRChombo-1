@@ -39,7 +39,9 @@ template <class potential_t, class background_t> class FixedBGProcaConstraint
     //!  parameters.
     FixedBGProcaConstraint(background_t a_background, double dx,
                            double a_vector_mass, double a_vector_damping,
-                           const potential_t potential);
+                           const potential_t potential, 
+		           const std::array<double, CH_SPACEDIM> a_center,
+			   const double a_dx);
 
     template <class data_t> void compute(Cell<data_t> current_cell) const;
 
@@ -51,6 +53,8 @@ template <class potential_t, class background_t> class FixedBGProcaConstraint
     const background_t m_background;      //!< The metric background
 
     const potential_t m_potential; // !< The potential of the Proca Field
+    const double m_dx;
+    const std::array<double, CH_SPACEDIM> m_center;
 
     //!  Function that calculates the constraint equations using
     //!  the proca field variables, 1st derivatives and the values of the
@@ -60,7 +64,8 @@ template <class potential_t, class background_t> class FixedBGProcaConstraint
         const vars_t<data_t> &vars, //!< the value of the variables
         const MetricVars<data_t>
             &metric_vars, //!< the value of the metric variables
-        const vars_t<Tensor<1, data_t>> &d1 //!< the value of 1st derivatives
+        const vars_t<Tensor<1, data_t>> &d1, //!< the value of 1st derivatives
+        const Coordinates<data_t> coords
         ) const;
 };
 

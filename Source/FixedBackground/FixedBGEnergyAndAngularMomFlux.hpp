@@ -36,15 +36,13 @@ class FixedBGEnergyAndAngularMomFlux
     const double m_dx;               //!< The matter object
     const background_t m_background; //!< The matter object
     const std::array<double, CH_SPACEDIM> m_center;
-    const double m_z_over_x;
 
   public:
     FixedBGEnergyAndAngularMomFlux(
         const matter_t a_matter, const background_t a_background,
-        const double a_dx, const std::array<double, CH_SPACEDIM> a_center,
-        const double a_z_over_x = 1.0)
+        const double a_dx, const std::array<double, CH_SPACEDIM> a_center)
         : m_matter(a_matter), m_deriv(a_dx), m_dx(a_dx),
-          m_background(a_background), m_center(a_center), m_z_over_x(a_z_over_x)
+          m_background(a_background), m_center(a_center)
     {
     }
 
@@ -74,7 +72,7 @@ class FixedBGEnergyAndAngularMomFlux
         data_t R = coords.get_radius();
         Ni_L[0] = coords.x / R;
         Ni_L[1] = coords.y / R;
-        Ni_L[2] = coords.z / R / m_z_over_x / m_z_over_x;
+        Ni_L[2] = coords.z / R;
         // normalise this to 1 using full metric g_munu
         data_t mod_N2 = 0.0;
         FOR2(i, j) { mod_N2 += gamma_UU[i][j] * Ni_L[i] * Ni_L[j]; }
@@ -119,8 +117,8 @@ class FixedBGEnergyAndAngularMomFlux
 
         // This factor of det_Sigma takes care of the surface element
         // The r2sintheta part is counted in the coordinate integration
-        // so remove it here
-        Edot *= sqrt_det_Sigma / r2sintheta;
+        // so remove it here, minus sign makes the flux physically sensible
+        Edot *= - sqrt_det_Sigma / r2sintheta;
 
         // The integrand for the angular momentum flux out of a radial
         // shell at the current position
