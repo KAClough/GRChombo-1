@@ -99,7 +99,7 @@ void ProcaFieldLevel::specificPostTimeStep()
         AMRReductions<VariableType::diagnostic> amr_reductions(m_gr_amr);
         double rho_sum = amr_reductions.sum(c_rho);
         double rho_J_sum = amr_reductions.sum(c_rhoJ);
-        double violation_sum = sqrt(amr_reductions.sum(c_violation));
+        double violation_sum = amr_reductions.norm(c_violation, 2, true);
 
         SmallDataIO integral_file(m_p.integral_filename, m_dt, m_time,
                                   m_restart_time, SmallDataIO::APPEND,

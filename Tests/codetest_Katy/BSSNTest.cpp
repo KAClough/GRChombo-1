@@ -225,25 +225,27 @@ int main()
         }
     }
 
+    std::array<double, 3> center = {N_GRID/2.0, N_GRID/2.0, N_GRID/2.0};    
+
     Potential::params_t potential_params;
-    potential_params.mu_H = 0; 
-    potential_params.lambda = 0; 
-    potential_params.r_0 = 0; 
-    potential_params.k = 0; 
-    potential_params.mu_c = 0; 
-    potential_params.mass = 0; 
+    potential_params.mu_H = 2; 
+    potential_params.lambda = 2; 
+    potential_params.r_0 = 8; 
+    potential_params.k = 20; 
+    potential_params.mu_c = 0.1; 
+    potential_params.mass = 0.5; 
+    potential_params.self_interaction = 0.0;
 
     IsotropicKerrFixedBG::params_t bg_params;
     bg_params.mass = 1.0;
     bg_params.spin = 0.99;
-    //bg_params.center = 0.99;
+    bg_params.center = center;
 
     double proca_damping = 0.1;
 
     int formulation = 1; // BSSN
     double G_Newton = 1.0;
     double sigma = 0.1;
-    std::array<double, 3> center = {N_GRID/2.0, N_GRID/2.0, N_GRID/2.0};    
 
     struct timeval begin, end;
     gettimeofday(&begin, NULL);
@@ -295,23 +297,19 @@ int main()
 
 //////////////////////////////////////////////////my code below////////////////////////
     PotentialZipeng::params_t potential_params_z;
-    //potential_params_z.mu_H = 2; 
-    //potential_params_z.lambda = 2; 
-    //potential_params_z.r_0 = 8; 
-    //potential_params_z.k = 20; 
-    //potential_params_z.mu_c = 0.1; 
-    //potential_params_z.mass = 0.5; 
-    potential_params_z.mu_H = 0; 
-    potential_params_z.lambda = 0; 
-    potential_params_z.r_0 = 0; 
-    potential_params_z.k = 0; 
-    potential_params_z.mu_c = 0; 
-    potential_params_z.mass = 0; 
+    potential_params_z.mu_H = 2; 
+    potential_params_z.lambda = 2; 
+    potential_params_z.r_0 = 8; 
+    potential_params_z.k = 20; 
+    potential_params_z.mu_c = 0.1; 
+    potential_params_z.mass = 0.5; 
+    potential_params_z.self_interaction = 0.0;
 
 
     IsotropicKerrFixedBGZipeng::params_t bg_params_z;
     bg_params_z.mass = 1.0;
     bg_params_z.spin = 0.99;
+    bg_params_z.center = center;
 
     typedef FixedBGProcaFieldTest<PotentialZipeng> ProcaFieldZipeng;
 

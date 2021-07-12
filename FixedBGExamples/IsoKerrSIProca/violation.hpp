@@ -88,7 +88,6 @@ class violation
 		    violation += metric_vars.lapse * chris_phys.ULL[i][i][j] * vars.Evec[j];
 		}
 	    }
-	violation = violation * violation;
         // Store the initial values of the variables
         current_cell.store_vars(violation, c_violation);
     }
