@@ -16,7 +16,7 @@ template <class data_t, template <typename> class vars_t>
 emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
     const vars_t<data_t> &vars, const MetricVars<data_t> &metric_vars,
     const vars_t<Tensor<1, data_t>> &d1, const Tensor<2, data_t> &gamma_UU,
-    const Tensor<3, data_t> &chris_phys_ULL) const
+    const Tensor<3, data_t> &chris_phys_ULL, const Coordinates<data_t> coords) const
 {
     emtensor_t<data_t> out;
 
@@ -24,7 +24,7 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
     data_t rho_potential = 0;
     Tensor<1, data_t> Si_potential;
     Tensor<2, data_t> Sij_potential;
-    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars);
+    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars, coords);
 
     // Some useful quantities
 
@@ -100,7 +100,7 @@ void FixedBGProcaField<potential_t>::matter_rhs(
     rhs_vars_t<data_t> &total_rhs, const vars_t<data_t> &vars,
     const MetricVars<data_t> &metric_vars, const vars_t<Tensor<1, data_t>> &d1,
     const diff2_vars_t<Tensor<2, data_t>> &d2,
-    const vars_t<data_t> &advec) const
+    const vars_t<data_t> &advec, const Coordinates<data_t> coords) const
 {
     // calculate full spatial christoffel symbols
     using namespace TensorAlgebra;
@@ -112,7 +112,7 @@ void FixedBGProcaField<potential_t>::matter_rhs(
     // dVdA = mu^2 ( 1 + 4 c4 (A^k A_k - phi^2))
     data_t dVdA = 0;
     data_t dphidt = 0;
-    m_potential.compute_potential(dVdA, dphidt, vars, d1, metric_vars);
+    m_potential.compute_potential(dVdA, dphidt, coords, vars, d1, metric_vars);
 
     // evolution equations for vector fields phi, A_i (note indices down) and
     // the conjugate momentum E^i (index up)

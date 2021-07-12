@@ -61,7 +61,7 @@ template <class matter_t, class background_t> class FixedBGDensityAndAngularMom
         const auto chris_phys =
             compute_christoffel(metric_vars.d1_gamma, gamma_UU);
         const emtensor_t<data_t> emtensor = m_matter.compute_emtensor(
-            vars, metric_vars, d1, gamma_UU, chris_phys.ULL);
+            vars, metric_vars, d1, gamma_UU, chris_phys.ULL, coords);
         const data_t det_gamma =
             TensorAlgebra::compute_determinant_sym(metric_vars.gamma);
 
@@ -69,7 +69,7 @@ template <class matter_t, class background_t> class FixedBGDensityAndAngularMom
         // defined using the timelike Killing vector
         // not that of the Eulerian observers
         data_t rho = emtensor.rho * metric_vars.lapse;
-        FOR1(i) { rho += -emtensor.Si[i] * metric_vars.shift[i]; }
+        FOR1(i) { rho += - emtensor.Si[i] * metric_vars.shift[i]; }
         rho *= sqrt(det_gamma);
 
         // now rho J, also the conserved one
@@ -79,7 +79,7 @@ template <class matter_t, class background_t> class FixedBGDensityAndAngularMom
         dxdphi[2] = 0;
 
         data_t rhoJ = 0;
-        FOR1(i) { rhoJ += -emtensor.Si[i] * dxdphi[i]; }
+        FOR1(i) { rhoJ += emtensor.Si[i] * dxdphi[i]; }
         rhoJ *= sqrt(det_gamma);
 
         // assign values of conserved density in output box,

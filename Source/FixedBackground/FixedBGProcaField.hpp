@@ -96,7 +96,8 @@ template <class potential_t> class FixedBGProcaField
             &metric_vars, //!< the value of the metric variables
         const vars_t<Tensor<1, data_t>> &d1,    //!< the 1st derivs
         const Tensor<2, data_t> &gamma_UU,      //!< the inverse metric (raised)
-        const Tensor<3, data_t> &chris_phys_ULL //!< the conformal christoffel
+        const Tensor<3, data_t> &chris_phys_ULL, //!< the conformal christoffel
+	const Coordinates<data_t> coords
         ) const;
 
     //! The function which adds in the matter field RHS, given the vars and
@@ -111,7 +112,8 @@ template <class potential_t> class FixedBGProcaField
             &metric_vars, //!< the value of the metric variables
         const vars_t<Tensor<1, data_t>> &d1, //!< the value of the 1st derivs
         const diff2_vars_t<Tensor<2, data_t>> &d2, //!< the 2nd derivs
-        const vars_t<data_t> &advec) const; //!< the value of beta^i d_i(var).
+        const vars_t<data_t> &advec,
+	const Coordinates<data_t> coords) const; //!< the value of beta^i d_i(var).
 };
 
 #include "FixedBGProcaField.impl.hpp"
