@@ -108,11 +108,15 @@ class Potential
                            const vars_t<data_t> &vars,
                            const vars_t<Tensor<1, data_t>> &d1,
 			   const Tensor<2, data_t> &gamma_UU,
-                           const MetricVars<data_t> &metric_vars) const
+                           const MetricVars<data_t> &metric_vars,
+		    	   Coordinates<data_t> coords) const //Zipeng edit
     {
 	// defining some useful variables to ease the load 	
+	double r_plus = m_bg_params.mass + pow( m_bg_params.mass * m_bg_params.mass - 
+			m_bg_params.spin * m_bg_params.spin, 0.5);
 
-    	const double msquared = pow(m_params.mass, 2.0);
+	data_t coords_mass = m_field(coords.x, coords.y, coords.z, r_plus, m_params.mass);
+    	data_t msquared = pow(coords_mass, 2.0);
         const double c4 = m_params.self_interaction;
 
 	data_t Asquared = 0;	

@@ -64,7 +64,7 @@ class FixedBGEnergyAndAngularMomFlux
         const auto chris_phys =
             compute_christoffel(metric_vars.d1_gamma, gamma_UU);
         const emtensor_t<data_t> emtensor = m_matter.compute_emtensor(
-            vars, metric_vars, d1, gamma_UU, chris_phys.ULL);
+            vars, metric_vars, d1, gamma_UU, chris_phys.ULL, coords);
 
         // The unit covector normal to the surfaces in cartesian coords
         // relative to the ellipsoid with axis ratio z_over_x

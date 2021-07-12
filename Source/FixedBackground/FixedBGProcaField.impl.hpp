@@ -16,7 +16,7 @@ template <class data_t, template <typename> class vars_t>
 emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
     const vars_t<data_t> &vars, const MetricVars<data_t> &metric_vars,
     const vars_t<Tensor<1, data_t>> &d1, const Tensor<2, data_t> &gamma_UU,
-    const Tensor<3, data_t> &chris_phys_ULL) const
+    const Tensor<3, data_t> &chris_phys_ULL, const Coordinates<data_t> coords) const
 {
     emtensor_t<data_t> out;
 
@@ -24,7 +24,7 @@ emtensor_t<data_t> FixedBGProcaField<potential_t>::compute_emtensor(
     data_t rho_potential = 0;
     Tensor<1, data_t> Si_potential;
     Tensor<2, data_t> Sij_potential;
-    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars);
+    m_potential.compute_stress_energy(rho_potential, Si_potential, Sij_potential, vars, d1, gamma_UU, metric_vars, coords);
 
     // Some useful quantities
 
